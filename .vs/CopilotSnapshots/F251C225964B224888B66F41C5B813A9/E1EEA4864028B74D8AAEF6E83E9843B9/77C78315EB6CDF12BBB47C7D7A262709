@@ -1,0 +1,341 @@
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
+using Guna.UI2.WinForms;
+using System.Runtime.InteropServices;
+
+namespace ClubManager
+{
+    public partial class AddClubForm : Form
+    {
+        [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
+        private extern static void ReleaseCapture();
+
+        [DllImport("user32.DLL", EntryPoint = "SendMessage")]
+        private extern static void SendMessage(System.IntPtr hWnd, int wMsg, int wParam, int lParam);
+
+        private Color primaryColor;
+        public Club NewClub { get; private set; }
+        private Club existingClub;
+
+        private Guna2Panel titleBar;
+        private Guna2TextBox txtName;
+        private Guna2TextBox txtCategory;
+        private Guna2TextBox txtDescription;
+        private Guna2DateTimePicker dtpNextEventDate;
+        private Guna2NumericUpDown nudOutstandingTasks;
+        private Guna2NumericUpDown nudUnpaidDues;
+        private Guna2Button btnSave;
+        private Guna2Button btnCancel;
+
+        public AddClubForm(Color primaryColor, Club clubToEdit = null)
+        {
+            InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.Size = new Size(600, 750);
+            this.BackColor = Color.White;
+            this.primaryColor = primaryColor;
+            this.existingClub = clubToEdit;
+
+            InitializeFormComponents();
+        }
+
+        private void InitializeFormComponents()
+        {
+            // ===== TITLE BAR =====
+            titleBar = new Guna2Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 70,
+                FillColor = primaryColor,
+                ShadowDecoration = { Enabled = true, Depth = 10 }
+            };
+
+            Label titleLabel = new Label
+            {
+                Text = existingClub == null ? "ADD NEW CLUB" : "EDIT CLUB",
+                Font = new Font("Segoe UI", 16F, FontStyle.Bold),
+                ForeColor = Color.White,
+                AutoSize = false,
+                Size = new Size(450, 70),
+                Location = new Point(20, 0),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+            Guna2ControlBox closeButton = new Guna2ControlBox
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FillColor = primaryColor,
+                IconColor = Color.White,
+                HoverState = { FillColor = Color.FromArgb(192, 0, 0) }
+            };
+
+            titleBar.Controls.Add(titleLabel);
+            titleBar.Controls.Add(closeButton);
+
+            // Make draggable
+            titleBar.MouseDown += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    ReleaseCapture();
+                    SendMessage(this.Handle, 0x112, 0xf012, 0);
+                }
+            };
+
+            // ===== MAIN CONTENT PANEL =====
+            Guna2Panel mainPanel = new Guna2Panel
+            {
+                Dock = DockStyle.Fill,
+                FillColor = Color.WhiteSmoke,
+                Padding = new Padding(40, 25, 40, 25)
+            };
+
+            // ===== FORM CONTENT =====
+            Panel formContent = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = Color.Transparent
+            };
+
+            int yPosition = 10;
+
+            // Club Name
+            Label lblName = CreateLabel("Club Name *", yPosition);
+            formContent.Controls.Add(lblName);
+            yPosition += 30;
+
+            txtName = new Guna2TextBox
+            {
+                Location = new Point(0, yPosition),
+                Width = 500,
+                Height = 40,
+                PlaceholderText = "Enter club name...",
+                Font = new Font("Segoe UI", 10F),
+                BorderRadius = 8,
+                BorderColor = Color.LightGray,
+                FocusedState = { BorderColor = primaryColor }
+            };
+            formContent.Controls.Add(txtName);
+            yPosition += 60;
+
+            // Category
+            Label lblCategory = CreateLabel("Category", yPosition);
+            formContent.Controls.Add(lblCategory);
+            yPosition += 30;
+
+            txtCategory = new Guna2TextBox
+            {
+                Location = new Point(0, yPosition),
+                Width = 500,
+                Height = 40,
+                PlaceholderText = "e.g., Sports, Arts, Technology...",
+                Font = new Font("Segoe UI", 10F),
+                BorderRadius = 8,
+                BorderColor = Color.LightGray,
+                FocusedState = { BorderColor = primaryColor }
+            };
+            formContent.Controls.Add(txtCategory);
+            yPosition += 60;
+
+            // Description
+            Label lblDescription = CreateLabel("Description", yPosition);
+            formContent.Controls.Add(lblDescription);
+            yPosition += 30;
+
+            txtDescription = new Guna2TextBox
+            {
+                Location = new Point(0, yPosition),
+                Width = 500,
+                Height = 100,
+                Multiline = true,
+                PlaceholderText = "Enter club description...",
+                Font = new Font("Segoe UI", 10F),
+                BorderRadius = 8,
+                BorderColor = Color.LightGray,
+                FocusedState = { BorderColor = primaryColor }
+            };
+            formContent.Controls.Add(txtDescription);
+            yPosition += 120;
+
+            // Next Event Date
+            Label lblNextEventDate = CreateLabel("Next Event Date", yPosition);
+            formContent.Controls.Add(lblNextEventDate);
+            yPosition += 30;
+
+            dtpNextEventDate = new Guna2DateTimePicker
+            {
+                Location = new Point(0, yPosition),
+                Width = 500,
+                Height = 40,
+                Font = new Font("Segoe UI", 10F),
+                BorderRadius = 8,
+                BorderColor = Color.LightGray,
+                FocusedColor = primaryColor,
+                FillColor = Color.White,
+                Format = DateTimePickerFormat.Long
+            };
+            formContent.Controls.Add(dtpNextEventDate);
+            yPosition += 60;
+
+            // Outstanding Tasks
+            Label lblOutstandingTasks = CreateLabel("Outstanding Tasks", yPosition);
+            formContent.Controls.Add(lblOutstandingTasks);
+            yPosition += 30;
+
+            nudOutstandingTasks = new Guna2NumericUpDown
+            {
+                Location = new Point(0, yPosition),
+                Width = 240,
+                Height = 40,
+                Minimum = 0,
+                Maximum = 1000,
+                Font = new Font("Segoe UI", 10F),
+                BorderRadius = 8,
+                BorderColor = Color.LightGray,
+                FocusedState = { BorderColor = primaryColor },
+                FillColor = Color.White,
+                UpDownButtonFillColor = primaryColor
+            };
+            formContent.Controls.Add(nudOutstandingTasks);
+
+            // Unpaid Dues
+            Label lblUnpaidDues = CreateLabel("Unpaid Dues", yPosition);
+            lblUnpaidDues.Location = new Point(260, yPosition);
+            formContent.Controls.Add(lblUnpaidDues);
+            yPosition += 30;
+
+            nudUnpaidDues = new Guna2NumericUpDown
+            {
+                Location = new Point(260, yPosition),
+                Width = 240,
+                Height = 40,
+                Minimum = 0,
+                Maximum = 100000,
+                Font = new Font("Segoe UI", 10F),
+                BorderRadius = 8,
+                BorderColor = Color.LightGray,
+                FocusedState = { BorderColor = primaryColor },
+                FillColor = Color.White,
+                UpDownButtonFillColor = primaryColor
+            };
+            formContent.Controls.Add(nudUnpaidDues);
+
+            mainPanel.Controls.Add(formContent);
+
+            // ===== BUTTON PANEL =====
+            Guna2Panel buttonPanel = new Guna2Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 80,
+                FillColor = Color.White,
+                Padding = new Padding(40, 15, 40, 15),
+                ShadowDecoration = { Enabled = true, Depth = 5 }
+            };
+
+            btnCancel = new Guna2Button
+            {
+                Text = "Cancel",
+                Width = 150,
+                Height = 45,
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                BorderRadius = 10,
+                FillColor = Color.FromArgb(224, 224, 224),
+                ForeColor = Color.FromArgb(64, 64, 64),
+                Location = new Point(40, 15),
+                Cursor = Cursors.Hand
+            };
+
+            btnSave = new Guna2Button
+            {
+                Text = existingClub == null ? "Add Club" : "Update Club",
+                Width = 280,
+                Height = 45,
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                BorderRadius = 10,
+                FillColor = primaryColor,
+                ForeColor = Color.White,
+                Location = new Point(220, 15),
+                Cursor = Cursors.Hand
+            };
+
+            buttonPanel.Controls.Add(btnCancel);
+            buttonPanel.Controls.Add(btnSave);
+
+            // ===== ADD ALL TO FORM =====
+            this.Controls.Add(mainPanel);
+            this.Controls.Add(buttonPanel);
+            this.Controls.Add(titleBar);
+
+            // ===== POPULATE DATA IF EDITING =====
+            if (existingClub != null)
+            {
+                txtName.Text = existingClub.Name;
+                txtCategory.Text = existingClub.Category;
+                txtDescription.Text = existingClub.Description;
+                dtpNextEventDate.Value = existingClub.NextEventDate;
+                nudOutstandingTasks.Value = existingClub.OutstandingTasks;
+                nudUnpaidDues.Value = existingClub.UnpaidDues;
+            }
+
+            // ===== EVENT HANDLERS =====
+            btnSave.Click += BtnSave_Click;
+            btnCancel.Click += (s, e) =>
+            {
+                this.DialogResult = DialogResult.Cancel;
+                this.Close();
+            };
+        }
+
+        private Label CreateLabel(string text, int yPosition)
+        {
+            return new Label
+            {
+                Text = text,
+                Location = new Point(0, yPosition),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(64, 64, 64)
+            };
+        }
+
+        private void BtnSave_Click(object sender, EventArgs e)
+        {
+            // Validation
+            if (string.IsNullOrWhiteSpace(txtName.Text))
+            {
+                MessageBox.Show("Please enter a club name.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtName.Focus();
+                return;
+            }
+
+            // Save data
+            if (existingClub != null)
+            {
+                existingClub.Name = txtName.Text.Trim();
+                existingClub.Category = txtCategory.Text.Trim();
+                existingClub.Description = txtDescription.Text.Trim();
+                existingClub.NextEventDate = dtpNextEventDate.Value;
+                existingClub.OutstandingTasks = (int)nudOutstandingTasks.Value;
+                existingClub.UnpaidDues = (int)nudUnpaidDues.Value;
+                NewClub = existingClub;
+            }
+            else
+            {
+                NewClub = new Club(
+                    txtName.Text.Trim(),
+                    txtCategory.Text.Trim(),
+                    txtDescription.Text.Trim(),
+                    dtpNextEventDate.Value,
+                    (int)nudOutstandingTasks.Value,
+                    (int)nudUnpaidDues.Value
+                );
+            }
+
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
+    }
+}

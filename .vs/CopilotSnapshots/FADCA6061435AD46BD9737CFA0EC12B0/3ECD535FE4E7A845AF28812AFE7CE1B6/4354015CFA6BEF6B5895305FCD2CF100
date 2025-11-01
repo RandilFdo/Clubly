@@ -1,0 +1,122 @@
+﻿using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Windows.Forms;
+
+namespace ClubManager
+{
+    public partial class ModernClubCard : UserControl
+    {
+        public string ClubId { get; set; }
+
+        public string ClubName
+        {
+            get { return lblClubName.Text; }
+            set { lblClubName.Text = value; }
+        }
+
+        public string NextEvent
+        {
+            get { return lblNextEvent.Text; }
+            set { lblNextEvent.Text = value; }
+        }
+
+        public int TasksCount
+        {
+            set { lblTasks.Text = $"Tasks: {value}"; }
+        }
+
+        public int DuesCount
+        {
+            set { lblDues.Text = $"Dues: {value}"; }
+        }
+
+        public Color AccentColor
+        {
+            get { return pnlAccent.BackColor; }
+            set { pnlAccent.BackColor = value; }
+        }
+
+        // Add default border/rounded-corner fields used by OnPaint
+        private Color borderColor = Color.Gray;
+        private int borderWidth = 2;
+        private int borderRadius = 10;
+
+        public ModernClubCard()
+        {
+            InitializeComponent();
+            this.DoubleBuffered = true;
+            this.Padding = new Padding(15);
+            this.Click += ModernClubCard_Click; // Attach the click event for the entire control
+            this.lblTasks.Click += lblTasks_Click;
+            this.lblDues.Click += lblDues_Click;
+        }
+
+        private void ModernClubCard_Click(object sender, EventArgs e)
+        {
+            // This event will be handled in MainMenu to navigate to the Club Dashboard
+            // No need to call base.OnClick(e) here as we are handling the event directly
+        }
+
+        public event EventHandler TasksClick;
+        public event EventHandler DuesClick;
+
+        private void lblTasks_Click(object sender, EventArgs e)
+        {
+            TasksClick?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void lblDues_Click(object sender, EventArgs e)
+        {
+            DuesClick?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Draw shadow
+            using (GraphicsPath shadowPath = GetRoundedRect(this.ClientRectangle, this.borderRadius))
+            {
+                using (Pen shadowPen = new Pen(Color.FromArgb(20, Color.Black), 3))
+                {
+                    shadowPen.LineJoin = LineJoin.Round;
+                    e.Graphics.DrawPath(shadowPen, shadowPath);
+                }
+            }
+
+            // Draw card body
+            Rectangle cardRect = new Rectangle(
+                this.ClientRectangle.X + 1,
+                this.ClientRectangle.Y + 1,
+                this.ClientRectangle.Width - 2,
+                this.ClientRectangle.Height - 2);
+
+            using (GraphicsPath path = GetRoundedRect(cardRect, this.borderRadius))
+            {
+                using (SolidBrush brush = new SolidBrush(this.BackColor))
+                {
+                    e.Graphics.FillPath(brush, path);
+                }
+
+                using (Pen pen = new Pen(this.borderColor, this.borderWidth))
+                {
+                    e.Graphics.DrawPath(pen, path);
+                }
+            }
+        }
+
+        private GraphicsPath GetRoundedRect(Rectangle rect, int radius)
+        {
+            GraphicsPath path = new GraphicsPath();
+            path.AddArc(rect.X, rect.Y, radius * 2, radius * 2, 180, 90);
+            path.AddArc(rect.Right - (radius * 2), rect.Y, radius * 2, radius * 2, 270, 90);
+            path.AddArc(rect.Right - (radius * 2), rect.Bottom - (radius * 2), radius * 2, radius * 2, 0, 90);
+            path.AddArc(rect.X, rect.Bottom - (radius * 2), radius * 2, radius * 2, 90, 90);
+            path.CloseFigure();
+            return path;
+        }
+    }
+}

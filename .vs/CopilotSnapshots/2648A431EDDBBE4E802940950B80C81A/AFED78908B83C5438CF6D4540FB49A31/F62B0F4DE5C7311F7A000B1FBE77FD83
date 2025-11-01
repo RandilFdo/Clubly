@@ -1,0 +1,201 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
+
+namespace ClubManager
+{
+    public class CustomCalendar : UserControl
+    {
+        private FlowLayoutPanel _dayPanel;
+        private Label _monthLabel;
+        private DateTime _currentDate = DateTime.Today;
+        private DateTime _selectedDate = DateTime.Today; // New field for selected date
+        private List<Club> _clubs;
+
+        public event EventHandler DateSelected; // New event
+
+        public CustomCalendar()
+        {
+            _clubs = new List<Club>();
+            InitializeComponent();
+            RenderCalendar();
+        }
+
+        public List<Club> Clubs
+        {
+            get { return _clubs; }
+            set
+            {
+                _clubs = value;
+                RenderCalendar();
+            }
+        }
+
+        public DateTime SelectedDate
+        {
+            get { return _selectedDate; }
+            private set
+            {
+                if (_selectedDate != value)
+                {
+                    _selectedDate = value;
+                    DateSelected?.Invoke(this, EventArgs.Empty);
+                    RenderCalendar(); // Re-render to highlight new selected date
+                }
+            }
+        }
+
+        private void InitializeComponent()
+        {
+            this.BackColor = Color.White;
+            this.Dock = DockStyle.Fill;
+
+            var topPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 40,
+                BackColor = Color.White
+            };
+
+            var btnPrev = new Button
+            {
+                Text = "<",
+                Dock = DockStyle.Left,
+                Width = 40,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold)
+            };
+            btnPrev.FlatAppearance.BorderSize = 0;
+            btnPrev.Click += (s, e) => { _currentDate = _currentDate.AddMonths(-1); RenderCalendar(); };
+
+            var btnNext = new Button
+            {
+                Text = ">",
+                Dock = DockStyle.Right,
+                Width = 40,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold)
+            };
+            btnNext.FlatAppearance.BorderSize = 0;
+            btnNext.Click += (s, e) => { _currentDate = _currentDate.AddMonths(1); RenderCalendar(); };
+
+            _monthLabel = new Label
+            {
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold)
+            };
+
+            topPanel.Controls.Add(_monthLabel);
+            topPanel.Controls.Add(btnPrev);
+            topPanel.Controls.Add(btnNext);
+
+            _dayPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.White,
+                AutoScroll = true // Enable scrolling if many days/events
+            };
+
+            this.Controls.Add(_dayPanel);
+            this.Controls.Add(topPanel);
+        }
+
+        private void RenderCalendar()
+        {
+            _dayPanel.Controls.Clear();
+            _monthLabel.Text = _currentDate.ToString("MMMM yyyy");
+
+            var daysInMonth = DateTime.DaysInMonth(_currentDate.Year, _currentDate.Month);
+            var firstDayOfMonth = new DateTime(_currentDate.Year, _currentDate.Month, 1);
+            var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+
+            // Add day headers (Sun, Mon, Tue, etc.)
+            string[] dayNames = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+            foreach (var dayName in dayNames)
+            {
+                var dayHeader = new Label
+                {
+                    Text = dayName,
+                    Width = _dayPanel.Width / 7 - 6,
+                    Height = 25,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                    ForeColor = ThemeColor.PrimaryColor // Use theme color for headers
+                };
+                _dayPanel.Controls.Add(dayHeader);
+            }
+
+            for (int i = 0; i < startDayOfWeek; i++)
+            {
+                var emptyLabel = new Label
+                {
+                    Width = _dayPanel.Width / 7 - 6,
+                    Height = 50, // Adjusted height for consistency
+                    Margin = new Padding(3)
+                };
+                _dayPanel.Controls.Add(emptyLabel);
+            }
+
+            for (int day = 1; day <= daysInMonth; day++)
+            {
+                var date = new DateTime(_currentDate.Year, _currentDate.Month, day);
+                var dayContainer = new Panel // Use a panel to hold day number and event count
+                {
+                    Width = _dayPanel.Width / 7 - 6,
+                    Height = 60, // Increased height to accommodate event count
+                    Margin = new Padding(3),
+                    BorderStyle = BorderStyle.FixedSingle,
+                    Cursor = Cursors.Hand
+                };
+                dayContainer.Tag = date; // Store the date in the Tag
+                dayContainer.Click += (s, e) => SelectedDate = (DateTime)((Panel)s).Tag; // Set SelectedDate on click
+
+                var dayLabel = new Label
+                {
+                    Text = day.ToString(),
+                    Dock = DockStyle.Top,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                    Height = 25
+                };
+                dayContainer.Controls.Add(dayLabel);
+
+                // Highlight selected date
+                if (date.Date == _selectedDate.Date)
+                {
+                    dayContainer.BackColor = ThemeColor.ChangeColorBrightness(ThemeColor.PrimaryColor, 0.7); // Lighter primary color
+                    dayLabel.ForeColor = Color.White;
+                }
+                else if (date.Date == DateTime.Today.Date)
+                {
+                    dayContainer.BackColor = Color.LightYellow; // Highlight today
+                }
+
+                // Display event count
+                // This part needs to be updated to fetch actual events, not just club.NextEventDate
+                // For now, I'll use a placeholder or assume a method to get events for a day.
+                // Assuming a method `GetEventsForDate(date)` exists or can be implemented.
+                // For now, I'll use the existing `_clubs` logic for demonstration.
+                var eventsOnDay = _clubs.Where(c => c.NextEventDate.Date == date.Date).ToList();
+                if (eventsOnDay.Any())
+                {
+                    var eventCountLabel = new Label
+                    {
+                        Text = $"{eventsOnDay.Count} events",
+                        Dock = DockStyle.Bottom,
+                        TextAlign = ContentAlignment.MiddleCenter,
+                        Font = new Font("Segoe UI", 8F),
+                        ForeColor = Color.DarkGray
+                    };
+                    dayContainer.Controls.Add(eventCountLabel);
+                }
+
+                _dayPanel.Controls.Add(dayContainer);
+            }
+        }
+    }
+}

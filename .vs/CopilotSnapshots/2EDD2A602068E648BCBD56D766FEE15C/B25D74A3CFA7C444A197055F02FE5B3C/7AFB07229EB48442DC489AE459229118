@@ -1,0 +1,72 @@
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
+using Guna.UI2.WinForms;
+
+namespace ClubManager
+{
+    public partial class AddTaskForm : Form
+    {
+        public UserTask TaskToEdit { get; private set; }
+        public UserTask NewTask { get; private set; }
+
+        public AddTaskForm(Color primaryColor, System.Collections.Generic.List<Club> clubs, UserTask taskToEdit = null)
+        {
+            InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.FormBorderStyle = FormBorderStyle.None;
+
+            this.cmbClub.DataSource = clubs;
+            this.cmbClub.DisplayMember = "Name";
+            this.cmbClub.ValueMember = "ClubId";
+
+            this.cmbPriority.Items.AddRange(new string[] { "Low", "Medium", "High" });
+
+            TaskToEdit = taskToEdit;
+
+            if (TaskToEdit != null)
+            {
+                this.Text = "Edit Task";
+                txtDescription.Text = TaskToEdit.Description;
+                dtpDueDate.Value = TaskToEdit.DueDate;
+                cmbPriority.SelectedItem = TaskToEdit.Priority;
+                cmbClub.SelectedValue = TaskToEdit.ClubId;
+            }
+            else
+            {
+                this.Text = "Add Task";
+                this.cmbPriority.SelectedIndex = 0;
+            }
+
+            this.btnSave.Click += (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(this.txtDescription.Text) || this.cmbClub.SelectedItem == null)
+                {
+                    MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (TaskToEdit != null)
+                {
+                    TaskToEdit.Description = txtDescription.Text;
+                    TaskToEdit.DueDate = dtpDueDate.Value;
+                    TaskToEdit.Priority = cmbPriority.SelectedItem.ToString();
+                    TaskToEdit.ClubId = ((Club)this.cmbClub.SelectedItem).ClubId;
+                    NewTask = TaskToEdit;
+                }
+                else
+                {
+                    NewTask = new UserTask(
+                        this.txtDescription.Text,
+                        this.dtpDueDate.Value,
+                        this.cmbPriority.SelectedItem.ToString(),
+                        ((Club)this.cmbClub.SelectedItem).ClubId
+                    );
+                }
+
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            };
+        }
+    }
+}}

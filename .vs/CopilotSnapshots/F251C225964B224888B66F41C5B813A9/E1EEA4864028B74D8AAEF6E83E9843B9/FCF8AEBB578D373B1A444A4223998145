@@ -1,0 +1,317 @@
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
+using Guna.UI2.WinForms;
+using System.Runtime.InteropServices;
+
+namespace ClubManager
+{
+    public partial class AddTaskForm : Form
+    {
+        [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
+        private extern static void ReleaseCapture();
+
+        [DllImport("user32.DLL", EntryPoint = "SendMessage")]
+        private extern static void SendMessage(System.IntPtr hWnd, int wMsg, int wParam, int lParam);
+
+        public UserTask TaskToEdit { get; private set; }
+        public UserTask NewTask { get; private set; }
+        private Color primaryColor;
+        private Guna2TextBox txtDescription;
+        private Guna2ComboBox cmbClub;
+        private Guna2DateTimePicker dtpDueDate;
+        private Guna2ComboBox cmbPriority;
+        private Guna2Button btnSave;
+        private Guna2Button btnCancel;
+        private Guna2Panel titleBar;
+
+        public AddTaskForm(Color primaryColor, System.Collections.Generic.List<Club> clubs, UserTask taskToEdit = null)
+        {
+            this.primaryColor = primaryColor;
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.Size = new Size(550, 650);
+            this.BackColor = Color.White;
+            TaskToEdit = taskToEdit;
+
+            InitializeFormComponents(clubs);
+        }
+
+        private void InitializeFormComponents(System.Collections.Generic.List<Club> clubs)
+        {
+            // ===== TITLE BAR =====
+            titleBar = new Guna2Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 70,
+                FillColor = primaryColor,
+                ShadowDecoration = { Enabled = true, Depth = 10 }
+            };
+
+            Label titleLabel = new Label
+            {
+                Text = TaskToEdit == null ? "ADD NEW TASK" : "EDIT TASK",
+                Font = new Font("Segoe UI", 16F, FontStyle.Bold),
+                ForeColor = Color.White,
+                AutoSize = false,
+                Size = new Size(400, 70),
+                Location = new Point(20, 0),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+            Guna2ControlBox closeButton = new Guna2ControlBox
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Location = new Point(490, 15),
+                Size = new Size(45, 40),
+                FillColor = primaryColor,
+                IconColor = Color.White,
+                HoverState = { FillColor = Color.FromArgb(192, 0, 0) }
+            };
+
+            titleBar.Controls.Add(titleLabel);
+            titleBar.Controls.Add(closeButton);
+
+            // Make draggable
+            titleBar.MouseDown += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    ReleaseCapture();
+                    SendMessage(this.Handle, 0x112, 0xf012, 0);
+                }
+            };
+            
+            titleLabel.MouseDown += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    ReleaseCapture();
+                    SendMessage(this.Handle, 0x112, 0xf012, 0);
+                }
+            };
+
+            // ===== BUTTON PANEL =====
+            Guna2Panel buttonPanel = new Guna2Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 80,
+                FillColor = Color.White,
+                Padding = new Padding(30, 15, 30, 15)
+            };
+
+            btnCancel = new Guna2Button
+            {
+                Text = "Cancel",
+                Width = 150,
+                Height = 45,
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                BorderRadius = 10,
+                FillColor = Color.FromArgb(224, 224, 224),
+                ForeColor = Color.FromArgb(64, 64, 64),
+                Location = new Point(30, 15),
+                Cursor = Cursors.Hand
+            };
+
+            btnSave = new Guna2Button
+            {
+                Text = TaskToEdit == null ? "Add Task" : "Update Task",
+                Width = 250,
+                Height = 45,
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                BorderRadius = 10,
+                FillColor = primaryColor,
+                ForeColor = Color.White,
+                Location = new Point(210, 15),
+                Cursor = Cursors.Hand
+            };
+
+            buttonPanel.Controls.Add(btnCancel);
+            buttonPanel.Controls.Add(btnSave);
+
+            // ===== MAIN CONTENT PANEL =====
+            Guna2Panel mainPanel = new Guna2Panel
+            {
+                Dock = DockStyle.Fill,
+                FillColor = Color.WhiteSmoke,
+                Padding = new Padding(30, 20, 30, 20)
+            };
+
+            // ===== FORM CONTENT =====
+            Panel formContent = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = Color.Transparent
+            };
+
+            int yPosition = 10;
+
+            // Description
+            Label lblDescription = CreateLabel("Task Description", yPosition);
+            formContent.Controls.Add(lblDescription);
+            yPosition += 30;
+
+            txtDescription = new Guna2TextBox
+            {
+                Location = new Point(0, yPosition),
+                Width = 460,
+                Height = 100,
+                Multiline = true,
+                PlaceholderText = "Enter task description...",
+                Font = new Font("Segoe UI", 10F),
+                BorderRadius = 8,
+                BorderColor = Color.LightGray,
+                FocusedState = { BorderColor = primaryColor }
+            };
+            formContent.Controls.Add(txtDescription);
+            yPosition += 120;
+
+            // Club
+            Label lblClub = CreateLabel("Select Club", yPosition);
+            formContent.Controls.Add(lblClub);
+            yPosition += 30;
+
+            cmbClub = new Guna2ComboBox
+            {
+                Location = new Point(0, yPosition),
+                Width = 460,
+                Height = 40,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Font = new Font("Segoe UI", 10F),
+                BorderRadius = 8,
+                BorderColor = Color.LightGray,
+                FocusedColor = primaryColor,
+                FillColor = Color.White
+            };
+            cmbClub.DataSource = clubs;
+            cmbClub.DisplayMember = "Name";
+            cmbClub.ValueMember = "ClubId";
+            formContent.Controls.Add(cmbClub);
+            yPosition += 60;
+
+            // Due Date
+            Label lblDueDate = CreateLabel("Due Date", yPosition);
+            formContent.Controls.Add(lblDueDate);
+            yPosition += 30;
+
+            dtpDueDate = new Guna2DateTimePicker
+            {
+                Location = new Point(0, yPosition),
+                Width = 460,
+                Height = 40,
+                Font = new Font("Segoe UI", 10F),
+                BorderRadius = 8,
+                BorderColor = Color.LightGray,
+                FocusedColor = primaryColor,
+                FillColor = Color.White,
+                Format = DateTimePickerFormat.Long
+            };
+            formContent.Controls.Add(dtpDueDate);
+            yPosition += 60;
+
+            // Priority
+            Label lblPriority = CreateLabel("Priority Level", yPosition);
+            formContent.Controls.Add(lblPriority);
+            yPosition += 30;
+
+            cmbPriority = new Guna2ComboBox
+            {
+                Location = new Point(0, yPosition),
+                Width = 460,
+                Height = 40,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Font = new Font("Segoe UI", 10F),
+                BorderRadius = 8,
+                BorderColor = Color.LightGray,
+                FocusedColor = primaryColor,
+                FillColor = Color.White
+            };
+            cmbPriority.Items.AddRange(new string[] { "Low", "Medium", "High" });
+            cmbPriority.SelectedIndex = 1; // Default to Medium
+            formContent.Controls.Add(cmbPriority);
+
+            mainPanel.Controls.Add(formContent);
+
+            // ===== ADD ALL TO FORM IN CORRECT ORDER =====
+            this.Controls.Add(titleBar);
+            this.Controls.Add(mainPanel);
+            this.Controls.Add(buttonPanel);
+
+            // ===== POPULATE DATA IF EDITING =====
+            if (TaskToEdit != null)
+            {
+                txtDescription.Text = TaskToEdit.Description;
+                dtpDueDate.Value = TaskToEdit.DueDate;
+                cmbPriority.SelectedItem = TaskToEdit.Priority;
+                cmbClub.SelectedValue = TaskToEdit.ClubId;
+            }
+
+            // ===== EVENT HANDLERS =====
+            btnSave.Click += BtnSave_Click;
+            btnCancel.Click += (s, e) =>
+            {
+                this.DialogResult = DialogResult.Cancel;
+                this.Close();
+            };
+        }
+
+        private Label CreateLabel(string text, int yPosition)
+        {
+            return new Label
+            {
+                Text = text,
+                Location = new Point(0, yPosition),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(64, 64, 64)
+            };
+        }
+
+        private void BtnSave_Click(object sender, EventArgs e)
+        {
+            // Validation
+            if (string.IsNullOrWhiteSpace(txtDescription.Text))
+            {
+                MessageBox.Show("Please enter a task description.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtDescription.Focus();
+                return;
+            }
+
+            if (cmbClub.SelectedItem == null)
+            {
+                MessageBox.Show("Please select a club.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cmbClub.Focus();
+                return;
+            }
+
+            if (cmbPriority.SelectedItem == null)
+            {
+                MessageBox.Show("Please select a priority level.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cmbPriority.Focus();
+                return;
+            }
+
+            // Save data
+            if (TaskToEdit != null)
+            {
+                TaskToEdit.Description = txtDescription.Text;
+                TaskToEdit.DueDate = dtpDueDate.Value;
+                TaskToEdit.Priority = cmbPriority.SelectedItem.ToString();
+                TaskToEdit.ClubId = ((Club)cmbClub.SelectedItem).ClubId;
+                NewTask = TaskToEdit;
+            }
+            else
+            {
+                NewTask = new UserTask(
+                    txtDescription.Text,
+                    dtpDueDate.Value,
+                    cmbPriority.SelectedItem.ToString(),
+                    ((Club)cmbClub.SelectedItem).ClubId
+                );
+            }
+
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
+    }

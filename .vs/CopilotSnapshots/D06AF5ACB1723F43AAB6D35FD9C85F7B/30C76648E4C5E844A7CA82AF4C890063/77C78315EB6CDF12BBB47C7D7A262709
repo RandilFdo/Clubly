@@ -1,0 +1,188 @@
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
+using Guna.UI2.WinForms;
+using System.Runtime.InteropServices;
+
+namespace ClubManager
+{
+    public partial class AddClubForm : Form
+    {
+        [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
+        private extern static void ReleaseCapture();
+
+        [DllImport("user32.DLL", EntryPoint = "SendMessage")]
+        private extern static void SendMessage(System.IntPtr hWnd, int wMsg, int wParam, int lParam);
+        private Color primaryColor;
+        public Club NewClub { get; private set; }
+        private Club existingClub;
+
+        public AddClubForm(Color primaryColor, Club clubToEdit = null)
+        {
+            InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.primaryColor = primaryColor;
+            this.existingClub = clubToEdit;
+
+            // Custom Title Bar
+            Guna2Panel titleBarPanel = new Guna2Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 30,
+                FillColor = primaryColor
+            };
+            
+            Label titleLabel = new Label
+            {
+                Text = this.Text,
+                Dock = DockStyle.Left,
+                AutoSize = true,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            titleBarPanel.Controls.Add(titleLabel);
+
+            Guna2ControlBox closeButton = new Guna2ControlBox
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FillColor = primaryColor,
+                IconColor = Color.White,
+                Dock = DockStyle.Right
+            };
+            titleBarPanel.Controls.Add(closeButton);
+
+            // Make the form draggable
+            titleBarPanel.MouseDown += (s, e) =>
+            {
+                ReleaseCapture();
+                SendMessage(this.Handle, 0x112, 0xf012, 0);
+            };
+
+            // Initialize input fields
+            TableLayoutPanel tableLayoutPanel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 7, // Increased for description
+                Padding = new Padding(10),
+                AutoSize = true
+            };
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            
+            // Adjust TableLayoutPanel location after title bar
+            tableLayoutPanel.Location = new Point(0, titleBarPanel.Height);
+
+            Label lblName = new Label { Text = "Club Name:", AutoSize = true, Anchor = AnchorStyles.Left };
+            Guna2TextBox txtName = new Guna2TextBox { Dock = DockStyle.Fill, BorderStyle = System.Drawing.Drawing2D.DashStyle.Solid, BorderColor = Color.LightGray, BorderRadius = 5, Text = "" };
+
+            Label lblCategory = new Label { Text = "Category:", AutoSize = true, Anchor = AnchorStyles.Left };
+            Guna2TextBox txtCategory = new Guna2TextBox { Dock = DockStyle.Fill, BorderStyle = System.Drawing.Drawing2D.DashStyle.Solid, BorderColor = Color.LightGray, BorderRadius = 5, Text = "" };
+
+            Label lblDescription = new Label { Text = "Description:", AutoSize = true, Anchor = AnchorStyles.Left };
+            Guna2TextBox txtDescription = new Guna2TextBox { Dock = DockStyle.Fill, BorderStyle = System.Drawing.Drawing2D.DashStyle.Solid, BorderColor = Color.LightGray, BorderRadius = 5, Text = "", Multiline = true, Height = 100 };
+
+            Label lblNextEventDate = new Label { Text = "Next Event Date:", AutoSize = true, Anchor = AnchorStyles.Left };
+            Guna2DateTimePicker dtpNextEventDate = new Guna2DateTimePicker { Dock = DockStyle.Fill, Format = DateTimePickerFormat.Short };
+
+            Label lblOutstandingTasks = new Label { Text = "Outstanding Tasks:", AutoSize = true, Anchor = AnchorStyles.Left };
+            Guna2NumericUpDown nudOutstandingTasks = new Guna2NumericUpDown { Dock = DockStyle.Fill, Minimum = 0 };
+
+            Label lblUnpaidDues = new Label { Text = "Unpaid Dues:", AutoSize = true, Anchor = AnchorStyles.Left };
+            Guna2NumericUpDown nudUnpaidDues = new Guna2NumericUpDown { Dock = DockStyle.Fill, Minimum = 0 };
+
+            if (existingClub != null)
+            {
+                this.Text = "Edit Club";
+                titleLabel.Text = "Edit Club";
+                txtName.Text = existingClub.Name;
+                txtCategory.Text = existingClub.Category;
+                txtDescription.Text = existingClub.Description;
+                dtpNextEventDate.Value = existingClub.NextEventDate;
+                nudOutstandingTasks.Value = existingClub.OutstandingTasks;
+                nudUnpaidDues.Value = existingClub.UnpaidDues;
+            }
+            else
+            {
+                this.Text = "Add New Club";
+                titleLabel.Text = "Add New Club";
+            }
+
+            tableLayoutPanel.Controls.Add(lblName, 0, 0);
+            tableLayoutPanel.Controls.Add(txtName, 1, 0);
+            tableLayoutPanel.Controls.Add(lblCategory, 0, 1);
+            tableLayoutPanel.Controls.Add(txtCategory, 1, 1);
+            tableLayoutPanel.Controls.Add(lblDescription, 0, 2);
+            tableLayoutPanel.Controls.Add(txtDescription, 1, 2);
+            tableLayoutPanel.Controls.Add(lblNextEventDate, 0, 3);
+            tableLayoutPanel.Controls.Add(dtpNextEventDate, 1, 3);
+            tableLayoutPanel.Controls.Add(lblOutstandingTasks, 0, 4);
+            tableLayoutPanel.Controls.Add(nudOutstandingTasks, 1, 4);
+            tableLayoutPanel.Controls.Add(lblUnpaidDues, 0, 5);
+            tableLayoutPanel.Controls.Add(nudUnpaidDues, 1, 5);
+
+            // --- Declare Buttons before use ---
+            Guna2Button btnSave = new Guna2Button { Text = "Save", FillColor = primaryColor, ForeColor = Color.White };
+            Guna2Button btnCancel = new Guna2Button { Text = "Cancel" };
+
+            FlowLayoutPanel buttonPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Bottom,
+                FlowDirection = FlowDirection.RightToLeft,
+                Padding = new Padding(10),
+                Height = 50
+            };
+            buttonPanel.Controls.Add(btnCancel);
+            buttonPanel.Controls.Add(btnSave);
+
+            // --- Add all top-level controls to the form ---
+            this.Controls.Add(buttonPanel);
+            this.Controls.Add(tableLayoutPanel);
+            this.Controls.Add(titleBarPanel);
+
+
+            btnSave.Click += (sender, e) =>
+            {
+                // Basic validation
+                if (string.IsNullOrWhiteSpace(txtName.Text))
+                {
+                    MessageBox.Show("Club Name cannot be empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (existingClub != null)
+                {
+                    existingClub.Name = txtName.Text;
+                    existingClub.Category = txtCategory.Text;
+                    existingClub.Description = txtDescription.Text;
+                    existingClub.NextEventDate = dtpNextEventDate.Value;
+                    existingClub.OutstandingTasks = (int)nudOutstandingTasks.Value;
+                    existingClub.UnpaidDues = (int)nudUnpaidDues.Value;
+                    NewClub = existingClub;
+                }
+                else
+                {
+                    NewClub = new Club(
+                        txtName.Text,
+                        txtCategory.Text,
+                        txtDescription.Text,
+                        dtpNextEventDate.Value,
+                        (int)nudOutstandingTasks.Value,
+                        (int)nudUnpaidDues.Value
+                    );
+                }
+
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            };
+
+            btnCancel.Click += (sender, e) =>
+            {
+                this.DialogResult = DialogResult.Cancel;
+                this.Close();
+            };
+        }
+    }
+}

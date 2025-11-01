@@ -1,0 +1,303 @@
+﻿namespace ClubManager
+{
+    partial class MainMenu
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            panelMenu = new Panel();
+            btnLogout = new Button();
+            btnSettings = new Button();
+            btnMyDues = new Button();
+            btnMyCalendar = new Button();
+            btnMyTasks = new Button();
+            btnMyClubs = new Button();
+            panelLogo = new Panel();
+            lblLogo = new Label();
+            panelTitleBar = new Panel();
+            btnClose = new Guna.UI2.WinForms.Guna2ControlBox();
+            btnMaximize = new Guna.UI2.WinForms.Guna2ControlBox();
+            btnMinimize = new Guna.UI2.WinForms.Guna2ControlBox();
+            lblTitle = new Label();
+            panelDesktop = new Panel();
+            panelMenu.SuspendLayout();
+            panelLogo.SuspendLayout();
+            panelTitleBar.SuspendLayout();
+            SuspendLayout();
+            // 
+            // panelMenu
+            // 
+            panelMenu.BackColor = Color.FromArgb(51, 51, 76);
+            panelMenu.Controls.Add(btnLogout);
+            panelMenu.Controls.Add(btnSettings);
+
+            panelMenu.Controls.Add(btnMyCalendar);
+            panelMenu.Controls.Add(btnMyTasks);
+            panelMenu.Controls.Add(btnMyClubs);
+            panelMenu.Controls.Add(panelLogo);
+            panelMenu.Dock = DockStyle.Left;
+            panelMenu.Location = new Point(0, 0);
+            panelMenu.Margin = new Padding(5, 6, 5, 6);
+            panelMenu.Name = "panelMenu";
+            panelMenu.Size = new Size(367, 1346);
+            panelMenu.TabIndex = 0;
+            // 
+            // btnLogout
+            // 
+            btnLogout.Dock = DockStyle.Bottom;
+            btnLogout.FlatAppearance.BorderSize = 0;
+            btnLogout.FlatStyle = FlatStyle.Flat;
+            btnLogout.ForeColor = Color.Gainsboro;
+            btnLogout.Location = new Point(0, 1231);
+            btnLogout.Margin = new Padding(5, 6, 5, 6);
+            btnLogout.Name = "btnLogout";
+            btnLogout.Padding = new Padding(20, 0, 0, 0);
+            btnLogout.Size = new Size(367, 115);
+            btnLogout.TabIndex = 6;
+            btnLogout.Text = "   Logout";
+            btnLogout.TextAlign = ContentAlignment.MiddleLeft;
+            btnLogout.UseVisualStyleBackColor = true;
+            btnLogout.Click += btnLogout_Click;
+            // 
+            // btnSettings
+            // 
+            btnSettings.Dock = DockStyle.Top;
+            btnSettings.FlatAppearance.BorderSize = 0;
+            btnSettings.FlatStyle = FlatStyle.Flat;
+            btnSettings.ForeColor = Color.Gainsboro;
+            btnSettings.Location = new Point(0, 614);
+            btnSettings.Margin = new Padding(5, 6, 5, 6);
+            btnSettings.Name = "btnSettings";
+            btnSettings.Padding = new Padding(20, 0, 0, 0);
+            btnSettings.Size = new Size(367, 115);
+            btnSettings.TabIndex = 5;
+            btnSettings.Text = "   Personalise";
+            btnSettings.TextAlign = ContentAlignment.MiddleLeft;
+            btnSettings.UseVisualStyleBackColor = true;
+            btnSettings.Click += btnSettings_Click;
+            // 
+            // btnMyDues
+            // 
+            btnMyDues.Dock = DockStyle.Top;
+            btnMyDues.FlatAppearance.BorderSize = 0;
+            btnMyDues.FlatStyle = FlatStyle.Flat;
+            btnMyDues.ForeColor = Color.Gainsboro;
+            btnMyDues.Location = new Point(0, 499);
+            btnMyDues.Margin = new Padding(5, 6, 5, 6);
+            btnMyDues.Name = "btnMyDues";
+            btnMyDues.Padding = new Padding(20, 0, 0, 0);
+            btnMyDues.Size = new Size(367, 115);
+            btnMyDues.TabIndex = 4;
+            btnMyDues.Text = "   My Dues";
+            btnMyDues.TextAlign = ContentAlignment.MiddleLeft;
+            btnMyDues.UseVisualStyleBackColor = true;
+
+            // 
+            // btnMyCalendar
+            // 
+            btnMyCalendar.Dock = DockStyle.Top;
+            btnMyCalendar.FlatAppearance.BorderSize = 0;
+            btnMyCalendar.FlatStyle = FlatStyle.Flat;
+            btnMyCalendar.ForeColor = Color.Gainsboro;
+            btnMyCalendar.Location = new Point(0, 384);
+            btnMyCalendar.Margin = new Padding(5, 6, 5, 6);
+            btnMyCalendar.Name = "btnMyCalendar";
+            btnMyCalendar.Padding = new Padding(20, 0, 0, 0);
+            btnMyCalendar.Size = new Size(367, 115);
+            btnMyCalendar.TabIndex = 3;
+            btnMyCalendar.Text = "   My Calendar";
+            btnMyCalendar.TextAlign = ContentAlignment.MiddleLeft;
+            btnMyCalendar.UseVisualStyleBackColor = true;
+            btnMyCalendar.Click += btnMyCalendar_Click;
+            // 
+            // btnMyTasks
+            // 
+            btnMyTasks.Dock = DockStyle.Top;
+            btnMyTasks.FlatAppearance.BorderSize = 0;
+            btnMyTasks.FlatStyle = FlatStyle.Flat;
+            btnMyTasks.ForeColor = Color.Gainsboro;
+            btnMyTasks.Location = new Point(0, 269);
+            btnMyTasks.Margin = new Padding(5, 6, 5, 6);
+            btnMyTasks.Name = "btnMyTasks";
+            btnMyTasks.Padding = new Padding(20, 0, 0, 0);
+            btnMyTasks.Size = new Size(367, 115);
+            btnMyTasks.TabIndex = 2;
+            btnMyTasks.Text = "   My Tasks";
+            btnMyTasks.TextAlign = ContentAlignment.MiddleLeft;
+            btnMyTasks.UseVisualStyleBackColor = true;
+            btnMyTasks.Click += btnMyTasks_Click;
+            // 
+            // btnMyClubs
+            // 
+            btnMyClubs.Dock = DockStyle.Top;
+            btnMyClubs.FlatAppearance.BorderSize = 0;
+            btnMyClubs.FlatStyle = FlatStyle.Flat;
+            btnMyClubs.Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnMyClubs.ForeColor = Color.Gainsboro;
+            btnMyClubs.Location = new Point(0, 154);
+            btnMyClubs.Margin = new Padding(5, 6, 5, 6);
+            btnMyClubs.Name = "btnMyClubs";
+            btnMyClubs.Padding = new Padding(20, 0, 0, 0);
+            btnMyClubs.Size = new Size(367, 115);
+            btnMyClubs.TabIndex = 1;
+            btnMyClubs.Text = "   My Clubs";
+            btnMyClubs.TextAlign = ContentAlignment.MiddleLeft;
+            btnMyClubs.UseVisualStyleBackColor = true;
+            btnMyClubs.Click += btnMyClubs_Click;
+            // 
+            // panelLogo
+            // 
+            panelLogo.BackColor = Color.FromArgb(39, 39, 58);
+            panelLogo.Controls.Add(lblLogo);
+            panelLogo.Dock = DockStyle.Top;
+            panelLogo.Location = new Point(0, 0);
+            panelLogo.Margin = new Padding(5, 6, 5, 6);
+            panelLogo.Name = "panelLogo";
+            panelLogo.Size = new Size(367, 154);
+            panelLogo.TabIndex = 0;
+            // 
+            // lblLogo
+            // 
+            lblLogo.AutoSize = true;
+            lblLogo.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblLogo.ForeColor = Color.LightGray;
+            lblLogo.Location = new Point(82, 62);
+            lblLogo.Margin = new Padding(5, 0, 5, 0);
+            lblLogo.Name = "lblLogo";
+            lblLogo.Size = new Size(164, 29);
+            lblLogo.TabIndex = 0;
+            lblLogo.Text = "Club Manager";
+            // 
+            // panelTitleBar
+            // 
+            panelTitleBar.BackColor = Color.FromArgb(0, 150, 136);
+            panelTitleBar.Controls.Add(btnClose);
+            panelTitleBar.Controls.Add(btnMaximize);
+            panelTitleBar.Controls.Add(btnMinimize);
+            panelTitleBar.Controls.Add(lblTitle);
+            panelTitleBar.Dock = DockStyle.Top;
+            panelTitleBar.Location = new Point(367, 0);
+            panelTitleBar.Margin = new Padding(5, 6, 5, 6);
+            panelTitleBar.Name = "panelTitleBar";
+            panelTitleBar.Size = new Size(1633, 154);
+            panelTitleBar.TabIndex = 1;
+            panelTitleBar.MouseDown += panelTitleBar_MouseDown;
+            // 
+            // btnClose
+            // 
+            btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnClose.FillColor = Color.FromArgb(0, 150, 136);
+            btnClose.IconColor = Color.White;
+            btnClose.Location = new Point(1578, 0);
+            btnClose.Name = "btnClose";
+            btnClose.Size = new Size(55, 45);
+            btnClose.TabIndex = 5;
+            // 
+            // btnMaximize
+            // 
+            btnMaximize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnMaximize.ControlBoxType = Guna.UI2.WinForms.Enums.ControlBoxType.MaximizeBox;
+            btnMaximize.FillColor = Color.FromArgb(0, 150, 136);
+            btnMaximize.IconColor = Color.White;
+            btnMaximize.Location = new Point(1517, 0);
+            btnMaximize.Name = "btnMaximize";
+            btnMaximize.Size = new Size(55, 45);
+            btnMaximize.TabIndex = 4;
+            // 
+            // btnMinimize
+            // 
+            btnMinimize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnMinimize.ControlBoxType = Guna.UI2.WinForms.Enums.ControlBoxType.MinimizeBox;
+            btnMinimize.FillColor = Color.FromArgb(0, 150, 136);
+            btnMinimize.IconColor = Color.White;
+            btnMinimize.Location = new Point(1456, 0);
+            btnMinimize.Name = "btnMinimize";
+            btnMinimize.Size = new Size(55, 45);
+            btnMinimize.TabIndex = 3;
+            // 
+            // lblTitle
+            // 
+            lblTitle.Anchor = AnchorStyles.None;
+            lblTitle.AutoSize = true;
+            lblTitle.Font = new Font("Microsoft Sans Serif", 16F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblTitle.ForeColor = Color.White;
+            lblTitle.Location = new Point(744, 48);
+            lblTitle.Margin = new Padding(5, 0, 5, 0);
+            lblTitle.Name = "lblTitle";
+            lblTitle.Size = new Size(112, 37);
+            lblTitle.TabIndex = 0;
+            lblTitle.Text = "HOME";
+            // 
+            // panelDesktop
+            // 
+            panelDesktop.Dock = DockStyle.Fill;
+            panelDesktop.Location = new Point(367, 154);
+            panelDesktop.Margin = new Padding(5, 6, 5, 6);
+            panelDesktop.Name = "panelDesktop";
+            panelDesktop.Size = new Size(1633, 1192);
+            panelDesktop.TabIndex = 2;
+            // 
+            // MainMenu
+            // 
+            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(2000, 1346);
+            Controls.Add(panelDesktop);
+            Controls.Add(panelTitleBar);
+            Controls.Add(panelMenu);
+            Margin = new Padding(5, 6, 5, 6);
+            Name = "MainMenu";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "  ";
+            panelMenu.ResumeLayout(false);
+            panelLogo.ResumeLayout(false);
+            panelLogo.PerformLayout();
+            panelTitleBar.ResumeLayout(false);
+            panelTitleBar.PerformLayout();
+            ResumeLayout(false);
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.Panel panelMenu;
+        private System.Windows.Forms.Panel panelLogo;
+        private System.Windows.Forms.Button btnMyClubs;
+        private System.Windows.Forms.Button btnMyTasks;
+        private System.Windows.Forms.Button btnMyCalendar;
+        private System.Windows.Forms.Button btnMyDues;
+        private System.Windows.Forms.Button btnSettings;
+        private System.Windows.Forms.Button btnLogout;
+        private System.Windows.Forms.Panel panelTitleBar;
+        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Label lblLogo;
+        private System.Windows.Forms.Panel panelDesktop;
+
+        private Guna.UI2.WinForms.Guna2ControlBox btnMinimize;
+        private Guna.UI2.WinForms.Guna2ControlBox btnMaximize;
+        private Guna.UI2.WinForms.Guna2ControlBox btnClose;
+    }
+}

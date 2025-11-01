@@ -1,0 +1,1185 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Drawing.Drawing2D;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Guna.UI2.WinForms;
+using Microsoft.EntityFrameworkCore;
+
+namespace ClubManager
+{
+    public partial class MainMenu : Form
+    {
+        //Fields
+        private Button? currentButton;
+        private Random random;
+        private Form? activeForm;
+        private string userId;
+        private string clubId;
+        private Color primaryColor;
+        private List<Club> allClubs; // Declare a list to hold all clubs
+        private Guna2TextBox txtSearch;
+        private Guna2ComboBox cmbFilterBy;
+
+        //Panels for different sections
+        private Panel panelMyClubs;
+        private Panel panelMyTasks;
+        private Panel panelMyCalendar;
+        private Panel panelMyDues;
+        private Panel panelSettings;
+
+        //Constructor
+        public MainMenu(string userId, string clubId)
+        {
+            InitializeComponent();
+            random = new Random();
+            this.Text = string.Empty;
+            this.ControlBox = false;
+            this.MaximizedBounds = Screen.FromHandle(this.Handle).WorkingArea;
+            
+            this.userId = userId;
+            this.clubId = clubId; // Note: This might represent the last-viewed club or be less relevant in a multi-club view.
+
+            // TODO: Fetch user's theme preference from the database
+            this.primaryColor = ColorTranslator.FromHtml("#7c3aed"); // Default to Violet
+            ThemeColor.PrimaryColor = this.primaryColor; // Update static ThemeColor
+
+            // --- Load clubs from the database ---
+            using (var context = new ClubManagerContext())
+            {
+                allClubs = context.Clubs.ToList();
+            }
+            // ------------------------------------
+
+            InitializePanels();
+            if (btnMyClubs != null)
+            {
+                ActivateButton(btnMyClubs); // Activate the button visually
+            }
+            else
+            {
+                MessageBox.Show("Error: btnMyClubs is null after initialization.", "Initialization Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            ApplyTheme(this.primaryColor);
+        }
+
+        [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
+        private extern static void ReleaseCapture();
+
+        [DllImport("user32.DLL", EntryPoint = "SendMessage")]
+        private extern static void SendMessage(System.IntPtr hWnd, int wMsg, int wParam, int lParam);
+
+        //Methods
+
+        private void InitializePanels()
+        {
+            // Initialize and configure all the panels that will be used as workspaces.
+            panelMyClubs = new Panel { Dock = DockStyle.Fill, BackColor = Color.White };
+            panelDesktop.Controls.Add(panelMyClubs);
+
+            panelMyTasks = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Visible = false };
+            panelDesktop.Controls.Add(panelMyTasks);
+
+            panelMyCalendar = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Visible = false };
+            panelDesktop.Controls.Add(panelMyCalendar);
+
+            panelMyDues = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Visible = false };
+            panelDesktop.Controls.Add(panelMyDues);
+
+            panelSettings = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Visible = false };
+            panelDesktop.Controls.Add(panelSettings);
+
+            // Build the panel UIs
+            InitializeMyClubsPanel();
+            InitializeMyTasksPanel();
+            InitializeMyCalendarPanel();
+            InitializeMyDuesPanel();
+            InitializeSettingsPanel();
+        }
+
+        private void InitializeMyDuesPanel()
+        {
+            panelMyDues.Controls.Clear();
+            panelMyDues.Padding = new Padding(20);
+            panelMyDues.BackColor = Color.WhiteSmoke;
+
+            // --- Top Bar ---
+            TableLayoutPanel topBar = new TableLayoutPanel
+            {
+                Dock = DockStyle.Top,
+                Height = 80,
+                ColumnCount = 3,
+                RowCount = 1,
+                BackColor = Color.WhiteSmoke,
+                Padding = new Padding(5, 5, 5, 15) // Adjusted padding for better spacing
+            };
+            topBar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
+            topBar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
+            topBar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+
+            // KPI Card 1: Total Pending
+            Panel kpiTotalPending = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(5) };
+            Label lblTotalPendingValue = new Label { Text = "$0.00", Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = primaryColor, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter };
+            Label lblTotalPendingTitle = new Label { Text = "Total Dues Pending", Font = new Font("Segoe UI", 9F), ForeColor = Color.Gray, Dock = DockStyle.Top, TextAlign = ContentAlignment.TopCenter, Padding = new Padding(0, 5, 0, 0) };
+            kpiTotalPending.Controls.Add(lblTotalPendingValue);
+            kpiTotalPending.Controls.Add(lblTotalPendingTitle);
+
+            // KPI Card 2: Next Due
+            Panel kpiNextDue = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(5) };
+            Label lblNextDueValue = new Label { Text = "N/A", Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = primaryColor, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter };
+            Label lblNextDueTitle = new Label { Text = "Next Due Date", Font = new Font("Segoe UI", 9F), ForeColor = Color.Gray, Dock = DockStyle.Top, TextAlign = ContentAlignment.TopCenter, Padding = new Padding(0, 5, 0, 0) };
+            kpiNextDue.Controls.Add(lblNextDueValue);
+            kpiNextDue.Controls.Add(lblNextDueTitle);
+
+            // Add New Dues Button
+            Button btnAddDues = new Button
+            {
+                Text = "+ Add New Dues",
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                BackColor = primaryColor,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Margin = new Padding(5),
+                Tag = "PrimaryButton"
+            };
+            btnAddDues.FlatAppearance.BorderSize = 0;
+
+            topBar.Controls.Add(kpiTotalPending, 0, 0);
+            topBar.Controls.Add(kpiNextDue, 1, 0);
+            topBar.Controls.Add(btnAddDues, 2, 0);
+
+            // --- Data Grid ---
+            DataGridView duesGrid = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                AutoGenerateColumns = false,
+                AllowUserToAddRows = false,
+                BackgroundColor = Color.White,
+                BorderStyle = BorderStyle.None,
+                ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
+                EnableHeadersVisualStyles = false,
+                RowHeadersVisible = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                GridColor = Color.FromArgb(230, 230, 230)
+            };
+
+            duesGrid.ColumnHeadersDefaultCellStyle.BackColor = primaryColor;
+            duesGrid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            duesGrid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            duesGrid.DefaultCellStyle.SelectionBackColor = ThemeColor.ChangeColorBrightness(primaryColor, 0.5);
+            duesGrid.DefaultCellStyle.SelectionForeColor = Color.White;
+            duesGrid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 247, 250);
+            duesGrid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            duesGrid.RowTemplate.Height = 40;
+            duesGrid.DefaultCellStyle.Font = new Font("Segoe UI", 10F);
+
+            // --- Add Columns ---
+            duesGrid.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Club", Name = "ClubName", DataPropertyName = "ClubName", Width = 150 });
+            duesGrid.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Description", Name = "PaymentDescription", DataPropertyName = "PaymentDescription", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
+            duesGrid.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Amount", Name = "AmountDue", DataPropertyName = "AmountDue", Width = 100, DefaultCellStyle = { Format = "C" } });
+            duesGrid.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Due Date", Name = "DueDate", DataPropertyName = "DueDate", Width = 120, DefaultCellStyle = { Format = "d" } });
+            duesGrid.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Status", Name = "Status", DataPropertyName = "Status", Width = 100 });
+            duesGrid.Columns.Add(new DataGridViewButtonColumn { HeaderText = "Action", Name = "Action", Text = "Mark as Paid", UseColumnTextForButtonValue = true, Width = 120 });
+
+            panelMyDues.Controls.Add(duesGrid);
+            panelMyDues.Controls.Add(topBar);
+
+            LoadDues(duesGrid, lblTotalPendingValue, lblNextDueValue);
+
+            // --- Event Handlers ---
+            btnAddDues.Click += (s, e) => MessageBox.Show("This will open a form to add new dues.");
+
+            duesGrid.CellFormatting += (s, e) => {
+                if (e.RowIndex >= 0 && duesGrid.Rows[e.RowIndex].DataBoundItem is Dues due)
+                {
+                    if (due.Status == "Pending" && due.DueDate < DateTime.Now.Date)
+                    {
+                        e.CellStyle.ForeColor = Color.Crimson;
+                        e.CellStyle.Font = new Font(e.CellStyle.Font, FontStyle.Bold);
+                    }
+                    else if (due.Status == "Paid")
+                    {
+                        e.CellStyle.ForeColor = Color.Gray;
+                    }
+                }
+            };
+
+            duesGrid.CellContentClick += (s, e) => {
+                if (e.ColumnIndex == duesGrid.Columns["Action"].Index && e.RowIndex >= 0)
+                {
+                    var row = duesGrid.Rows[e.RowIndex];
+                    if (row.DataBoundItem is Dues due && due.Status == "Pending")
+                    {
+                        // TODO: Update database status to 'Paid' for due.Id
+                        due.Status = "Paid";
+                        row.Cells["Status"].Value = "Paid";
+                        row.DefaultCellStyle.ForeColor = Color.Gray;
+                        
+                        var buttonCell = (DataGridViewButtonCell)row.Cells["Action"];
+                        buttonCell.Value = "Paid";
+                        buttonCell.Style.BackColor = Color.LightGray;
+                        buttonCell.Style.ForeColor = Color.Black;
+                        buttonCell.FlatStyle = FlatStyle.Flat;
+                        row.Cells["Action"].ReadOnly = true;
+
+                        using (var context = new ClubManagerContext())
+                        {
+                            context.Dues.Update(due);
+                            context.SaveChanges();
+                        }
+
+                        // Recalculate KPIs
+                        var duesList = ((BindingList<Dues>)duesGrid.DataSource).ToList();
+                        UpdateDuesKpis(duesList, lblTotalPendingValue, lblNextDueValue);
+                    }
+                }
+            };
+        }
+
+        private void LoadDues(DataGridView grid, Label totalPendingLabel, Label nextDueLabel)
+        {
+            using (var context = new ClubManagerContext())
+            {
+                var dues = context.Dues.ToList();
+                grid.DataSource = new BindingList<Dues>(dues.OrderBy(d => d.DueDate).ToList());
+                UpdateDuesKpis(dues, totalPendingLabel, nextDueLabel);
+            }
+        }
+
+        private void UpdateDuesKpis(List<Dues> dues, Label totalPendingValueLabel, Label nextDueValueLabel)
+        {
+            var pendingDues = dues.Where(d => d.Status == "Pending").ToList();
+            decimal totalPending = pendingDues.Sum(d => d.AmountDue);
+            totalPendingValueLabel.Text = $"{totalPending:C}";
+            var nextDue = pendingDues.OrderBy(d => d.DueDate).FirstOrDefault();
+            if (nextDue != null)
+            {
+                nextDueValueLabel.Text = $"{nextDue.DueDate.ToShortDateString()}";
+            }
+            else
+            {
+                nextDueValueLabel.Text = "N/A";
+            }
+        }
+
+        private void InitializeMyCalendarPanel()
+        {
+            panelMyCalendar.Controls.Clear();
+            panelMyCalendar.Padding = new Padding(10);
+            panelMyCalendar.BackColor = Color.WhiteSmoke;
+
+            var customCalendar = new CustomCalendar
+            {
+                Clubs = allClubs,
+                Dock = DockStyle.Fill
+            };
+            panelMyCalendar.Controls.Add(customCalendar);
+
+            // Initial load of events (if any) for the default selected date
+            // This part will need to be re-evaluated if event display is desired later.
+            // For now, focusing on calendar and notes.
+        }
+
+        private void InitializeMyTasksPanel()
+        {
+            panelMyTasks.Controls.Clear();
+            panelMyTasks.Padding = new Padding(20);
+            panelMyTasks.BackColor = Color.WhiteSmoke;
+
+            // --- Top Bar ---
+            Guna2Panel topBar = new Guna2Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 60,
+                FillColor = Color.White,
+                Padding = new Padding(10)
+            };
+
+            Guna2TextBox txtSearchTasks = new Guna2TextBox
+            {
+                PlaceholderText = "Search tasks...",
+                Dock = DockStyle.Left,
+                Width = 300,
+                Font = new Font("Segoe UI", 10F),
+                BorderRadius = 15,
+                Margin = new Padding(5)
+            };
+
+            Guna2ComboBox cmbClubFilter = new Guna2ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Dock = DockStyle.Left,
+                Width = 200,
+                Font = new Font("Segoe UI", 10F),
+                BorderRadius = 15,
+                Margin = new Padding(10, 5, 5, 5)
+            };
+
+            Guna2Button btnAddTask = new Guna2Button
+            {
+                Text = "+ Add New Task",
+                Dock = DockStyle.Right,
+                Width = 150,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                FillColor = this.primaryColor,
+                ForeColor = Color.White,
+                BorderRadius = 15,
+                Margin = new Padding(5)
+            };
+
+            topBar.Controls.Add(btnAddTask);
+            topBar.Controls.Add(cmbClubFilter);
+            topBar.Controls.Add(txtSearchTasks);
+
+            // --- Kanban Board ---
+            TableLayoutPanel kanbanLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1,
+                Padding = new Padding(0, 10, 0, 0)
+            };
+            kanbanLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            kanbanLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+
+            var toDoPanel = CreateKanbanColumn("To Do", Color.FromArgb(255, 182, 193));
+            var donePanel = CreateKanbanColumn("Done", Color.FromArgb(144, 238, 144));
+
+            kanbanLayout.Controls.Add(toDoPanel, 0, 0);
+            kanbanLayout.Controls.Add(donePanel, 1, 0);
+
+            panelMyTasks.Controls.Add(kanbanLayout);
+            panelMyTasks.Controls.Add(topBar);
+
+            LoadTasks(toDoPanel, null, donePanel, cmbClubFilter, txtSearchTasks.Text);
+
+            // --- Event Handlers ---
+            btnAddTask.Click += (s, e) =>
+            {
+                using (AddTaskForm addTaskForm = new AddTaskForm(this.primaryColor, allClubs))
+                {
+                    if (addTaskForm.ShowDialog() == DialogResult.OK)
+                    {
+                        using (var context = new ClubManagerContext())
+                        {
+                            context.UserTasks.Add(addTaskForm.NewTask);
+                            context.SaveChanges();
+                        }
+                        LoadTasks(toDoPanel, null, donePanel, cmbClubFilter, txtSearchTasks.Text);
+                    }
+                }
+            };
+            txtSearchTasks.TextChanged += (s, e) => LoadTasks(toDoPanel, null, donePanel, cmbClubFilter, txtSearchTasks.Text);
+            cmbClubFilter.SelectedIndexChanged += (s, e) => LoadTasks(toDoPanel, null, donePanel, cmbClubFilter, txtSearchTasks.Text);
+        }
+
+        private Guna2Panel CreateKanbanColumn(string title, Color headerColor)
+        {
+            Guna2Panel columnPanel = new Guna2Panel
+            {
+                Dock = DockStyle.Fill,
+                FillColor = Color.WhiteSmoke,
+                Margin = new Padding(5)
+            };
+
+            Guna2Panel header = new Guna2Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 40,
+                FillColor = headerColor,
+                BorderRadius = 5
+            };
+
+            Label lblTitle = new Label
+            {
+                Text = title,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                ForeColor = this.primaryColor, // Changed to primary color
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            header.Controls.Add(lblTitle);
+
+            FlowLayoutPanel tasksPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                Padding = new Padding(50, 5, 50, 5), // Adjusted padding for centering
+                AllowDrop = true
+            };
+
+            tasksPanel.DragEnter += (s, e) => 
+            {
+                e.Effect = DragDropEffects.Move;
+            };
+
+            columnPanel.Controls.Add(tasksPanel);
+            columnPanel.Controls.Add(header);
+            return columnPanel;
+        }
+
+        private Guna2Panel CreateTaskCard(UserTask task, Action refreshCallback)
+        {
+            Guna2Panel card = new Guna2Panel
+            {
+                Width = 280,
+                Height = 150, // Increased height
+                Margin = new Padding(5),
+                FillColor = Color.White,
+                BorderRadius = 10,
+                ShadowDecoration = { Depth = 5, Enabled = true }
+            };
+
+            Guna2Panel priorityStrip = new Guna2Panel
+            {
+                Width = 10,
+                Dock = DockStyle.Left,
+                FillColor = GetPriorityColor(task.Priority)
+            };
+
+            TableLayoutPanel contentPanel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(15, 5, 15, 5),
+                ColumnCount = 3,
+                RowCount = 4
+            };
+
+            contentPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            contentPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            contentPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 40F));
+            contentPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // Description
+            contentPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F)); // Club
+            contentPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F)); // Due Date
+            contentPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F)); // Buttons
+
+            Label lblDescription = new Label
+            {
+                Text = task.Description,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Dock = DockStyle.Fill,
+                AutoSize = true,
+                MaximumSize = new Size(240, 0) // Allow wrapping
+            };
+
+            Label lblClub = new Label
+            {
+                Text = $"Club: {task.Club.Name}",
+                Font = new Font("Segoe UI", 8F),
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+            Label lblDueDate = new Label
+            {
+                Text = $"Due: {task.DueDate.ToShortDateString()}",
+                Font = new Font("Segoe UI", 8F, FontStyle.Italic),
+                ForeColor = Color.Gray,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.BottomRight
+            };
+
+            Guna2CheckBox chkCompleted = new Guna2CheckBox
+            {
+                Checked = task.Status == "Done",
+                Dock = DockStyle.Fill
+            };
+
+            Guna2Button btnEdit = new Guna2Button
+            {
+                Text = "Edit",
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 8F),
+                Height = 25,
+                Width = 60
+            };
+
+            Guna2Button btnDelete = new Guna2Button
+            {
+                Text = "Delete",
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 8F),
+                FillColor = Color.Crimson,
+                ForeColor = Color.White,
+                Height = 25,
+                Width = 60
+            };
+
+            chkCompleted.CheckedChanged += (s, e) =>
+            {
+                task.Status = chkCompleted.Checked ? "Done" : "To Do";
+                using (var context = new ClubManagerContext())
+                {
+                    context.UserTasks.Update(task);
+                    context.SaveChanges();
+                }
+                refreshCallback?.Invoke();
+            };
+
+            contentPanel.Controls.Add(lblDescription, 0, 0);
+            contentPanel.SetColumnSpan(lblDescription, 3);
+            contentPanel.Controls.Add(lblClub, 0, 1);
+            contentPanel.Controls.Add(lblDueDate, 0, 2);
+            contentPanel.Controls.Add(chkCompleted, 2, 1);
+            contentPanel.SetRowSpan(chkCompleted, 2);
+            btnEdit.Click += (s, e) =>
+            {
+                using (AddTaskForm editTaskForm = new AddTaskForm(this.primaryColor, allClubs, task))
+                {
+                    if (editTaskForm.ShowDialog() == DialogResult.OK)
+                    {
+                        using (var context = new ClubManagerContext())
+                        {
+                            context.UserTasks.Update(editTaskForm.TaskToEdit);
+                            context.SaveChanges();
+                        }
+                        refreshCallback?.Invoke();
+                    }
+                }
+            };
+
+            btnDelete.Click += (s, e) =>
+            {
+                if (MessageBox.Show("Are you sure you want to delete this task?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                {
+                    using (var context = new ClubManagerContext())
+                    {
+                        context.UserTasks.Remove(task);
+                        context.SaveChanges();
+                    }
+                    refreshCallback?.Invoke();
+                }
+            };
+
+            card.Controls.Add(contentPanel);
+            card.Controls.Add(priorityStrip);
+
+            return card;
+        }
+
+        private Color GetPriorityColor(string priority)
+        {
+            switch (priority.ToLower())
+            {
+                case "high":
+                    return Color.Crimson;
+                case "medium":
+                    return Color.Orange;
+                case "low":
+                    return Color.Gray;
+                default:
+                    return Color.Gray;
+            }
+        }
+
+        private void LoadTasks(Guna2Panel toDoPanel, Guna2Panel inProgressPanel, Guna2Panel donePanel, Guna2ComboBox clubFilter, string searchTerm)
+        {
+            using (var context = new ClubManagerContext())
+            {
+                var tasks = context.UserTasks.Include(t => t.Club).ToList();
+
+                // Populate filters
+                if (clubFilter.Items.Count < 2)
+                {
+                    clubFilter.Items.Clear();
+                    clubFilter.Items.Add("All Clubs");
+                    clubFilter.Items.AddRange(allClubs.Select(c => c.Name).ToArray());
+                    clubFilter.SelectedIndex = 0;
+                }
+
+                // --- Filtering ---
+                var filteredTasks = tasks;
+                if (clubFilter.SelectedItem.ToString() != "All Clubs")
+                {
+                    filteredTasks = filteredTasks.Where(t => t.Club.Name == clubFilter.SelectedItem.ToString()).ToList();
+                }
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    filteredTasks = filteredTasks.Where(t => t.Description.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+                }
+
+                // Clear existing cards
+                toDoPanel.Controls[0].Controls.Clear();
+                donePanel.Controls[0].Controls.Clear();
+
+                Action refreshAction = () => LoadTasks(toDoPanel, null, donePanel, clubFilter, searchTerm);
+
+                foreach (var task in filteredTasks)
+                {
+                    if (string.IsNullOrEmpty(task.Status))
+                    {
+                        task.Status = "To Do";
+                    }
+
+                    var card = CreateTaskCard(task, refreshAction);
+                    switch (task.Status)
+                    {
+                        case "Done":
+                            donePanel.Controls[0].Controls.Add(card);
+                            break;
+                        case "To Do":
+                        default:
+                            toDoPanel.Controls[0].Controls.Add(card);
+                            break;
+                    }
+                }
+            }
+        }
+
+
+        private void InitializeMyClubsPanel()
+{
+    panelMyClubs.Controls.Clear();
+    panelMyClubs.Padding = new Padding(20);
+    panelMyClubs.BackColor = Color.WhiteSmoke;
+
+    // --- Top Bar (Search, Filter By, Add) ---
+    Guna2Panel topBar = new Guna2Panel
+    {
+        Dock = DockStyle.Top,
+        Height = 60,
+        FillColor = Color.White,
+        Padding = new Padding(10)
+    };
+
+    txtSearch = new Guna2TextBox
+    {
+        PlaceholderText = "Search clubs...",
+        Dock = DockStyle.Left,
+        Width = 300,
+        Font = new Font("Segoe UI", 10F),
+        BorderRadius = 15,
+        Margin = new Padding(5)
+    };
+
+    cmbFilterBy = new Guna2ComboBox
+    {
+        DropDownStyle = ComboBoxStyle.DropDownList,
+        Dock = DockStyle.Left,
+        Width = 200,
+        Font = new Font("Segoe UI", 10F),
+        Items = { "Club Name", "Category", "Next Event", "Tasks", "Dues" },
+        SelectedIndex = 0,
+        BorderRadius = 15,
+        Margin = new Padding(10, 5, 5, 5)
+    };
+
+    Guna2Button btnAddClub = new Guna2Button
+    {
+        Text = "+ Add New Club",
+        Dock = DockStyle.Right,
+        Width = 150,
+        Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+        FillColor = this.primaryColor,
+        ForeColor = Color.White,
+        BorderRadius = 15,
+        Margin = new Padding(5)
+    };
+
+    topBar.Controls.Add(btnAddClub);
+    topBar.Controls.Add(cmbFilterBy);
+    topBar.Controls.Add(txtSearch);
+    
+
+    // --- FlowLayoutPanel for Club Cards ---
+    FlowLayoutPanel flowLayout = new FlowLayoutPanel
+    {
+        Dock = DockStyle.Fill,
+        AutoScroll = true,
+        Padding = new Padding(10),
+        BackColor = Color.WhiteSmoke
+    };
+
+    panelMyClubs.Controls.Add(flowLayout);
+    panelMyClubs.Controls.Add(topBar);
+
+    // --- Event Handlers ---
+    txtSearch.TextChanged += (s, e) => LoadClubs(flowLayout, txtSearch.Text, cmbFilterBy.SelectedItem.ToString());
+    cmbFilterBy.SelectedIndexChanged += (s, e) => LoadClubs(flowLayout, txtSearch.Text, cmbFilterBy.SelectedItem.ToString());
+    btnAddClub.Click += (s, e) => OpenAddClubForm(flowLayout, txtSearch, cmbFilterBy);
+
+    // Initial Load
+    LoadClubs(flowLayout, "", cmbFilterBy.SelectedItem.ToString());
+}
+
+private Guna2Panel CreateClubCard(Club club)
+{
+    Guna2Panel card = new Guna2Panel
+    {
+        Width = 350,
+        Height = 350,
+        Margin = new Padding(10),
+        FillColor = Color.White,
+        BorderRadius = 15,
+        ShadowDecoration =
+        {
+            Depth = 10,
+            Enabled = true
+        },
+        BorderColor = ThemeColor.ChangeColorBrightness(primaryColor, 0.6),
+        BorderThickness = 1
+    };
+
+    // Header
+    Guna2Panel header = new Guna2Panel
+    {
+        Dock = DockStyle.Top,
+        Height = 50,
+        FillColor = this.primaryColor,
+        BorderRadius = 15
+    };
+
+    Label lblName = new Label
+    {
+        Text = club.Name,
+        Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+        ForeColor = Color.White,
+        Dock = DockStyle.Fill,
+        Padding = new Padding(15, 0, 15, 0),
+        TextAlign = ContentAlignment.MiddleLeft
+    };
+    header.Controls.Add(lblName);
+
+    // Body
+    Panel body = new Panel
+    {
+        Dock = DockStyle.Fill,
+        Padding = new Padding(15)
+    };
+
+    Label lblCategory = new Label
+    {
+        Text = club.Category,
+        Font = new Font("Segoe UI", 9F, FontStyle.Italic),
+        ForeColor = Color.Gray,
+        Dock = DockStyle.Top,
+        Padding = new Padding(0, 0, 0, 10),
+        TextAlign = ContentAlignment.MiddleLeft,
+        AutoSize = true
+    };
+
+    Label lblDescription = new Label
+    {
+        Text = club.Description,
+        Font = new Font("Segoe UI", 10F),
+        ForeColor = Color.FromArgb(64, 64, 64),
+        Dock = DockStyle.Fill
+    };
+
+    body.Controls.Add(lblDescription);
+    body.Controls.Add(lblCategory);
+
+    // Footer
+    FlowLayoutPanel footer = new FlowLayoutPanel
+    {
+        Dock = DockStyle.Bottom,
+        Height = 50,
+        Padding = new Padding(10),
+        FlowDirection = FlowDirection.RightToLeft
+    };
+
+    Guna2Button btnDelete = new Guna2Button
+    {
+        Text = "Delete",
+        Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+        FillColor = Color.Crimson,
+        ForeColor = Color.White,
+        Width = 100,
+        Height = 30,
+        BorderRadius = 10,
+        Margin = new Padding(5)
+    };
+    btnDelete.Click += (s, e) =>
+    {
+        if (MessageBox.Show($"Are you sure you want to delete {club.Name}?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+        {
+            using (var context = new ClubManagerContext())
+            {
+                context.Clubs.Remove(club);
+                context.SaveChanges();
+            }
+            // Refresh the view
+            using (var context = new ClubManagerContext())
+            {
+                allClubs = context.Clubs.ToList();
+            }
+            LoadClubs((FlowLayoutPanel)card.Parent, "", "");
+        }
+    };
+
+    Guna2Button btnEdit = new Guna2Button
+    {
+        Text = "Edit",
+        Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+        FillColor = Color.Gray,
+        ForeColor = Color.White,
+        Width = 80,
+        Height = 30,
+        BorderRadius = 10,
+        Margin = new Padding(5)
+    };
+    btnEdit.Click += (s, e) =>
+    {
+        OpenAddClubForm((FlowLayoutPanel)card.Parent, txtSearch, cmbFilterBy, club);
+    };
+
+    footer.Controls.Add(btnDelete);
+    footer.Controls.Add(btnEdit);
+
+    card.Click += (s, e) => {
+        ClubDetailsForm detailsForm = new ClubDetailsForm(club, primaryColor);
+        detailsForm.ShowDialog();
+    };
+
+    card.Controls.Add(body);
+    card.Controls.Add(footer);
+    card.Controls.Add(header);
+
+    return card;
+}
+
+private void OpenAddClubForm(FlowLayoutPanel flowLayout, Guna2TextBox txtSearch, Guna2ComboBox cmbFilterBy, Club clubToEdit = null)
+{
+    using (AddClubForm addForm = new AddClubForm(this.primaryColor, clubToEdit))
+    {
+        if (addForm.ShowDialog() == DialogResult.OK)
+        {
+            using (var context = new ClubManagerContext())
+            {
+                if (clubToEdit != null)
+                {
+                    context.Clubs.Update(addForm.NewClub);
+                }
+                else
+                {
+                    context.Clubs.Add(addForm.NewClub);
+                }
+                context.SaveChanges();
+            }
+            // --- Refresh the local list from the database ---
+            using (var context = new ClubManagerContext())
+            {
+                allClubs = context.Clubs.ToList();
+            }
+            // ----------------------------------------------
+            LoadClubs(flowLayout, txtSearch.Text, cmbFilterBy.SelectedItem.ToString()); // Reload data
+            MessageBox.Show($"Club {(clubToEdit == null ? "added" : "updated")} successfully!", $"Club {(clubToEdit == null ? "Added" : "Updated")}", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+    }
+}
+
+private void LoadClubs(FlowLayoutPanel flowLayout, string searchTerm, string sortOption)
+{
+    flowLayout.Controls.Clear();
+    
+    // --- Filtering ---
+    var filteredClubs = allClubs;
+    if (!string.IsNullOrWhiteSpace(searchTerm))
+    {
+        filteredClubs = allClubs.Where(c => c.Name.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+    }
+    // --- Sorting ---
+    switch (sortOption)
+    {
+        case "Club Name":
+            filteredClubs = filteredClubs.OrderBy(c => c.Name).ToList();
+            break;
+        case "Category":
+            filteredClubs = filteredClubs.OrderBy(c => c.Category).ToList();
+            break;
+        case "Next Event":
+            filteredClubs = filteredClubs.OrderBy(c => c.NextEventDate).ToList();
+            break;
+        case "Tasks":
+            filteredClubs = filteredClubs.OrderByDescending(c => c.OutstandingTasks).ToList();
+            break;
+        case "Dues":
+            filteredClubs = filteredClubs.OrderByDescending(c => c.UnpaidDues).ToList();
+            break;
+        default:
+            filteredClubs = filteredClubs.OrderBy(c => c.Name).ToList();
+            break;
+    }
+
+    foreach (var club in filteredClubs)
+    {
+        flowLayout.Controls.Add(CreateClubCard(club));
+    }
+}
+
+
+        private void InitializeSettingsPanel()
+        {
+            panelSettings.Controls.Clear();
+            panelSettings.Padding = new Padding(30);
+            panelSettings.BackColor = Color.WhiteSmoke;
+
+            // --- Main Layout ---
+            TableLayoutPanel mainLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3,
+                RowStyles = { new RowStyle(SizeType.AutoSize), new RowStyle(SizeType.AutoSize), new RowStyle(SizeType.Percent, 100F) },
+                BackColor = Color.White
+            };
+
+            // --- Header ---
+            var settingsLabel = new Label
+            {
+                Text = "Personalize Your Experience",
+                Font = new Font("Segoe UI", 16F, FontStyle.Bold),
+                ForeColor = Color.Black,
+                Dock = DockStyle.Top,
+                Padding = new Padding(10)
+            };
+
+            // --- Theme Color Section ---
+            GroupBox themeGroup = new GroupBox
+            {
+                Text = "Theme Color",
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                Dock = DockStyle.Top,
+                Padding = new Padding(15),
+                Height = 120
+            };
+
+            FlowLayoutPanel colorPalette = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight
+            };
+
+            themeGroup.Controls.Add(colorPalette);
+
+            // --- Save Button ---
+            Button saveButton = new Button
+            {
+                Text = "Save Preferences",
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                BackColor = primaryColor,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Height = 40,
+                Dock = DockStyle.Bottom,
+                Margin = new Padding(10),
+                Tag = "PrimaryButton"
+            };
+            saveButton.FlatAppearance.BorderSize = 0;
+
+            mainLayout.Controls.Add(settingsLabel, 0, 0);
+            mainLayout.Controls.Add(themeGroup, 0, 1);
+            mainLayout.Controls.Add(saveButton, 0, 2);
+            panelSettings.Controls.Add(mainLayout);
+
+            // --- Color Swatches ---
+            var colors = new Dictionary<string, string>
+            {
+                { "Violet", "#7c3aed" },
+                { "Emerald", "#059669" },
+                { "Indigo", "#312e81" },
+                { "Pink", "#db2777" },
+                { "Blue", "#3b82f6" },
+                { "Orange", "#f97316" }
+            };
+
+            Panel selectedSwatch = null;
+
+            Action<object, EventArgs> colorSwatchClick = (s, e) =>
+            {
+                if (selectedSwatch != null)
+                {
+                    selectedSwatch.BorderStyle = BorderStyle.None;
+                    selectedSwatch.Padding = new Padding(0);
+                }
+
+                var swatch = (Panel)s;
+                this.primaryColor = swatch.BackColor;
+                ApplyTheme(this.primaryColor);
+                saveButton.BackColor = this.primaryColor; // Update save button color too
+
+                swatch.BorderStyle = BorderStyle.FixedSingle;
+                swatch.Padding = new Padding(3);
+                selectedSwatch = swatch;
+            };
+
+            foreach (var color in colors)
+            {
+                Panel swatch = new Panel
+                {
+                    Size = new Size(50, 50),
+                    BackColor = ColorTranslator.FromHtml(color.Value),
+                    Margin = new Padding(10),
+                    Cursor = Cursors.Hand,
+                    Tag = color.Value
+                };
+                swatch.Click += new EventHandler(colorSwatchClick);
+                colorPalette.Controls.Add(swatch);
+
+                if (swatch.BackColor == this.primaryColor)
+                {
+                    swatch.BorderStyle = BorderStyle.FixedSingle;
+                    swatch.Padding = new Padding(3);
+                    selectedSwatch = swatch;
+                }
+            }
+
+            // --- Save Button Logic ---
+            saveButton.Click += (s, e) => {
+                // TODO: Save the selected primaryColor's hex value to the database for the current userId.
+                MessageBox.Show($"Theme color saved! ({ColorTranslator.ToHtml(this.primaryColor)})", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            };
+        }
+
+        private void ApplyTheme(Color color)
+        {
+            this.primaryColor = color;
+            ThemeColor.PrimaryColor = this.primaryColor; // Update static ThemeColor
+            panelTitleBar.BackColor = primaryColor;
+            panelLogo.BackColor = ThemeColor.ChangeColorBrightness(primaryColor, -0.3);
+            if (currentButton != null)
+            {
+                currentButton.BackColor = primaryColor;
+            }
+
+            // Re-initialize panels to apply theme colors to all their components.
+            // This is simpler than tracking all themed controls, but resets panel state.
+            InitializeMyClubsPanel();
+            InitializeMyTasksPanel();
+            InitializeMyCalendarPanel();
+            InitializeMyDuesPanel();
+            InitializeSettingsPanel();
+        }
+
+        private void ActivateButton(object btnSender)
+        {
+            if (btnSender != null)
+            {
+                if (currentButton != (Button)btnSender)
+                {
+                    DisableButton();
+                    currentButton = (Button)btnSender;
+                    currentButton.BackColor = primaryColor;
+                    currentButton.ForeColor = Color.White;
+                    currentButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                }
+            }
+        }
+
+        private void DisableButton()
+        {
+            foreach (Control previousBtn in panelMenu.Controls)
+            {
+                if (previousBtn.GetType() == typeof(Button))
+                {
+                    previousBtn.BackColor = Color.FromArgb(51, 51, 76);
+                    previousBtn.ForeColor = Color.Gainsboro;
+                    previousBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                }
+            }
+        }
+
+        private void OpenPanel(Panel panelToShow, string title)
+        {
+            // Hide all panels
+            panelMyClubs.Visible = false;
+            panelMyTasks.Visible = false;
+            panelMyCalendar.Visible = false;
+            panelMyDues.Visible = false;
+            panelSettings.Visible = false;
+
+            // Show the requested panel
+            panelToShow.Visible = true;
+            lblTitle.Text = title.ToUpper();
+        }
+
+        private void btnMyClubs_Click(object sender, EventArgs e)
+        {
+            ActivateButton(sender);
+            OpenPanel(panelMyClubs, "My Clubs");
+        }
+
+        private void btnMyTasks_Click(object sender, EventArgs e)
+        {
+            ActivateButton(sender);
+            OpenPanel(panelMyTasks, "My Tasks");
+        }
+
+        private void btnMyCalendar_Click(object sender, EventArgs e)
+        {
+            ActivateButton(sender);
+            OpenPanel(panelMyCalendar, "My Calendar");
+        }
+
+        private void btnMyDues_Click(object sender, EventArgs e)
+        {
+            ActivateButton(sender);
+            OpenPanel(panelMyDues, "My Dues");
+        }
+
+        private void btnSettings_Click(object sender, EventArgs e)
+        {
+            ActivateButton(sender);
+            OpenPanel(panelSettings, "Profile & Settings");
+        }
+
+        private void btnLogout_Click(object sender, EventArgs e)
+        {
+            // When logging out, close the main menu and show the login form again.
+            this.Close();
+            // Find the login form if it exists, or create a new one, and show it.
+            LoginForm loginForm = Application.OpenForms.OfType<LoginForm>().FirstOrDefault();
+            if (loginForm != null)
+            {
+                loginForm.Show();
+            }
+            else
+            {
+                new LoginForm().Show();
+            }
+        }
+
+        private void Reset()
+        {
+            DisableButton();
+            lblTitle.Text = "HOME";
+            panelTitleBar.BackColor = primaryColor;
+            panelLogo.BackColor = ThemeColor.ChangeColorBrightness(primaryColor, -0.3);
+            currentButton = null;
+        }
+
+        private void panelTitleBar_MouseDown(object sender, MouseEventArgs e)
+        {
+            ReleaseCapture();
+            SendMessage(this.Handle, 0x112, 0xf012, 0);
+        }
+
+        private void btnClose_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void btnMaximize_Click(object sender, EventArgs e)
+        {
+            if (WindowState == FormWindowState.Normal)
+                this.WindowState = FormWindowState.Maximized;
+            else
+                this.WindowState = FormWindowState.Normal;
+        }
+
+        private void btnMinimize_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+    }
+}

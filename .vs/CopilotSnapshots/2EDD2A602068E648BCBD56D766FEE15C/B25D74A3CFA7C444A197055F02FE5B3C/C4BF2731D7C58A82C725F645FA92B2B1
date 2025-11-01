@@ -1,0 +1,108 @@
+﻿namespace ClubManager
+{
+    partial class AddTaskForm
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        private Guna.UI2.WinForms.Guna2TextBox txtDescription;
+        private Guna.UI2.WinForms.Guna2ComboBox cmbClub;
+        private Guna.UI2.WinForms.Guna2DateTimePicker dtpDueDate;
+        private Guna.UI2.WinForms.Guna2ComboBox cmbPriority;
+        private Guna.UI2.WinForms.Guna2Button btnSave;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.components = new System.ComponentModel.Container();
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(500, 500);
+            this.Text = "Add Task";
+
+            this.txtDescription = new Guna.UI2.WinForms.Guna2TextBox();
+            this.cmbClub = new Guna.UI2.WinForms.Guna2ComboBox();
+            this.dtpDueDate = new Guna.UI2.WinForms.Guna2DateTimePicker();
+            this.cmbPriority = new Guna.UI2.WinForms.Guna2ComboBox();
+            this.btnSave = new Guna.UI2.WinForms.Guna2Button();
+
+            Guna.UI2.WinForms.Guna2Panel mainPanel = new Guna.UI2.WinForms.Guna2Panel { Dock = DockStyle.Fill, FillColor = Color.White, Padding = new Padding(30) };
+            Guna.UI2.WinForms.Guna2Panel titleBar = new Guna.UI2.WinForms.Guna2Panel { Dock = DockStyle.Top, Height = 50 };
+            Label titleLabel = new Label { Text = "Add New Task", ForeColor = Color.White, Font = new Font("Segoe UI", 16F, FontStyle.Bold), Dock = DockStyle.Left, Padding = new Padding(10, 0, 0, 0) };
+            Guna.UI2.WinForms.Guna2ControlBox closeButton = new Guna.UI2.WinForms.Guna2ControlBox { Anchor = AnchorStyles.Top | AnchorStyles.Right, IconColor = Color.White, Dock = DockStyle.Right, Size = new System.Drawing.Size(50, 50) };
+
+            Guna.UI2.WinForms.Guna2DragControl dragControl = new Guna.UI2.WinForms.Guna2DragControl { TargetControl = titleBar };
+
+            this.txtDescription.PlaceholderText = "Task Description";
+            this.txtDescription.Font = new Font("Segoe UI", 12F);
+            this.txtDescription.BorderRadius = 15;
+            this.txtDescription.Margin = new Padding(0, 0, 0, 15);
+            this.txtDescription.Height = 100;
+            this.txtDescription.Multiline = true;
+
+            this.cmbClub.DropDownStyle = ComboBoxStyle.DropDownList;
+            this.cmbClub.Font = new Font("Segoe UI", 12F);
+            this.cmbClub.BorderRadius = 15;
+            this.cmbClub.Margin = new Padding(0, 0, 0, 15);
+            this.cmbClub.Height = 50;
+
+            this.dtpDueDate.Font = new Font("Segoe UI", 12F);
+            this.dtpDueDate.BorderRadius = 15;
+            this.dtpDueDate.Margin = new Padding(0, 0, 0, 15);
+            this.dtpDueDate.Height = 50;
+
+            this.cmbPriority.DropDownStyle = ComboBoxStyle.DropDownList;
+            this.cmbPriority.Font = new Font("Segoe UI", 12F);
+            this.cmbPriority.BorderRadius = 15;
+            this.cmbPriority.Margin = new Padding(0, 0, 0, 15);
+            this.cmbPriority.Height = 50;
+            this.cmbPriority.ForeColor = Color.Black;
+
+            this.btnSave.Text = "Save Task";
+            this.btnSave.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            this.btnSave.ForeColor = Color.White;
+            this.btnSave.BorderRadius = 15;
+            this.btnSave.Height = 60;
+
+            TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5 };
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 120));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 70));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 70));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 70));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 80));
+
+            layout.Controls.Add(this.txtDescription, 0, 0);
+            layout.Controls.Add(this.cmbClub, 0, 1);
+            layout.Controls.Add(this.dtpDueDate, 0, 2);
+            layout.Controls.Add(this.cmbPriority, 0, 3);
+            layout.Controls.Add(this.btnSave, 0, 4);
+
+            titleBar.Controls.Add(titleLabel);
+            titleBar.Controls.Add(closeButton);
+            mainPanel.Controls.Add(layout);
+            this.Controls.Add(mainPanel);
+            this.Controls.Add(titleBar);
+        }
+
+        #endregion
+    }
+}

@@ -1,0 +1,293 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\addtaskform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:addtaskform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\customcalendar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:customcalendar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\mainmenu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:mainmenu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\clubmanager.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:clubmanager.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\loadingform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:loadingform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\loadingform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:loadingform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\mainmenu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:mainmenu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\clubmanagercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:clubmanagercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\mainmenu.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:mainmenu.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\addclubform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:addclubform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\LENOVO\\AppData\\Local\\Temp\\tmp6E2B.tmp.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\loginform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:loginform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\properties\\resources.resx||{81828910-B8B3-4D2B-99A3-067027C180C1}",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:properties\\resources.resx||{81828910-B8B3-4D2B-99A3-067027C180C1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\clubmanager.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:clubmanager.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|c:\\users\\lenovo\\downloads\\esoft project\\another one\\clubmanager\\dues.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44CB596F-C472-3716-30AC-B358FA883E13}|ClubManager.csproj|solutionrelative:dues.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "MainMenu.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\MainMenu.Designer.cs",
+              "RelativeDocumentMoniker": "MainMenu.Designer.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\MainMenu.Designer.cs",
+              "RelativeToolTip": "MainMenu.Designer.cs",
+              "ViewState": "AgIAACoBAAAAAAAAAEBVwC4BAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-25T05:32:30.101Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CustomCalendar.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\CustomCalendar.cs",
+              "RelativeDocumentMoniker": "CustomCalendar.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\CustomCalendar.cs",
+              "RelativeToolTip": "CustomCalendar.cs",
+              "ViewState": "AgIAAMIBAAAAAAAAAAAuwB8CAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-25T06:25:20.937Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ClubManager.csproj",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\ClubManager.csproj",
+              "RelativeDocumentMoniker": "ClubManager.csproj",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\ClubManager.csproj",
+              "RelativeToolTip": "ClubManager.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-10-24T14:07:15.587Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AddTaskForm.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\AddTaskForm.cs",
+              "RelativeDocumentMoniker": "AddTaskForm.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\AddTaskForm.cs",
+              "RelativeToolTip": "AddTaskForm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-26T03:21:24.017Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "tmp6E2B.tmp.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\tmp6E2B.tmp.cs",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\AppData\\Local\\Temp\\tmp6E2B.tmp.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\tmp6E2B.tmp.cs",
+              "RelativeToolTip": "..\\..\\..\\..\\AppData\\Local\\Temp\\tmp6E2B.tmp.cs",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-24T14:56:05.163Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MainMenu.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\MainMenu.cs",
+              "RelativeDocumentMoniker": "MainMenu.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\MainMenu.cs",
+              "RelativeToolTip": "MainMenu.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-25T05:22:11.749Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "AddClubForm.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\AddClubForm.cs",
+              "RelativeDocumentMoniker": "AddClubForm.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\AddClubForm.cs",
+              "RelativeToolTip": "AddClubForm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAxwF8BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-24T15:47:53.261Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "LoadingForm.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\LoadingForm.cs",
+              "RelativeDocumentMoniker": "LoadingForm.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\LoadingForm.cs",
+              "RelativeToolTip": "LoadingForm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-24T08:47:01.222Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ClubManagerContext.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\ClubManagerContext.cs",
+              "RelativeDocumentMoniker": "ClubManagerContext.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\ClubManagerContext.cs",
+              "RelativeToolTip": "ClubManagerContext.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAswBsAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-26T06:58:54.995Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Dues.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\Dues.cs",
+              "RelativeDocumentMoniker": "Dues.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\Dues.cs",
+              "RelativeToolTip": "Dues.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-26T07:00:40.691Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "LoginForm.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\LoginForm.Designer.cs",
+              "RelativeDocumentMoniker": "LoginForm.Designer.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\LoginForm.Designer.cs",
+              "RelativeToolTip": "LoginForm.Designer.cs",
+              "ViewState": "AgIAAGkAAAAAAAAAAAAmwG8AAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-24T09:16:28.183Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "LoginForm.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\LoginForm.cs",
+              "RelativeDocumentMoniker": "LoginForm.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\LoginForm.cs",
+              "RelativeToolTip": "LoginForm.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAawE4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-24T08:52:15.034Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Resources.resx",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\Properties\\Resources.resx",
+              "RelativeDocumentMoniker": "Properties\\Resources.resx",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\Properties\\Resources.resx",
+              "RelativeToolTip": "Properties\\Resources.resx",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
+              "WhenOpened": "2025-10-24T09:20:00.861Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "ClubManager",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\ClubManager.csproj",
+              "RelativeDocumentMoniker": "ClubManager.csproj",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\ClubManager.csproj",
+              "RelativeToolTip": "ClubManager.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-10-24T09:19:19.075Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "LoadingForm.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\LoadingForm.cs",
+              "RelativeDocumentMoniker": "LoadingForm.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\LoadingForm.cs [Design]",
+              "RelativeToolTip": "LoadingForm.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-29T04:00:40.057Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "MainMenu.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\MainMenu.cs",
+              "RelativeDocumentMoniker": "MainMenu.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\MainMenu.cs [Design]",
+              "RelativeToolTip": "MainMenu.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-26T09:28:45.197Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "LoginForm.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\LoginForm.cs",
+              "RelativeDocumentMoniker": "LoginForm.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Downloads\\ESOFT PROJECT\\Another one\\ClubManager\\LoginForm.cs [Design]",
+              "RelativeToolTip": "LoginForm.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-24T10:18:49.355Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

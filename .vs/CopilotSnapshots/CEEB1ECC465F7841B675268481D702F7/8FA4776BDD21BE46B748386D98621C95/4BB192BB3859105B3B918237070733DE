@@ -1,0 +1,35 @@
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace ClubManager
+{
+    public class ClubManagerContext : DbContext
+    {
+        public DbSet<Club> Clubs { get; set; }
+        public DbSet<UserTask> UserTasks { get; set; }
+        public DbSet<Dues> Dues { get; set; }
+        public DbSet<CalendarEvent> CalendarEvents { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=ClubManagerDb;Trusted_Connection=True;");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Configure primary keys
+            modelBuilder.Entity<Club>().HasKey(c => c.ClubId);
+            modelBuilder.Entity<UserTask>().HasKey(t => t.TaskId);
+            modelBuilder.Entity<Dues>().HasKey(d => d.DueId);
+            modelBuilder.Entity<CalendarEvent>().HasKey(e => e.EventId);
+
+            // Configure relationships (example: one-to-many from Club to UserTask)
+            modelBuilder.Entity<UserTask>()
+                .HasOne(t => t.Club)
+                .WithMany()
+                .HasForeignKey(t => t.ClubId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Add any other model configurations here
+        }
+    }
+}

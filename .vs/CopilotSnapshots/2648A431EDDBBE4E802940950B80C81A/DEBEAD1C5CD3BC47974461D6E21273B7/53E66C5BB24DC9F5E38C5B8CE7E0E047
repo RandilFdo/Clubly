@@ -1,0 +1,491 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
+
+namespace ClubManager
+{
+    public class CustomCalendar : UserControl
+    {
+        private FlowLayoutPanel _dayPanel;
+        private TableLayoutPanel _calendarTable;
+        private Label _monthLabel;
+        private DateTime _currentDate = DateTime.Today;
+        private DateTime _selectedDate = DateTime.Today; // New field for selected date
+        private List<Club> _clubs;
+        private Dictionary<DateTime, Panel> _dayPanels; // To store references to day panels
+        private List<UserTask> _userTasks; // To store user tasks/notes
+        private Dictionary<DateTime, List<string>> _dayNotes; // To store multiple notes per day
+        private Color _hoverColor = Color.FromArgb(230, 230, 250); // Pale Lavender
+        private Color _clickColor = Color.FromArgb(180, 180, 250); // Medium Lavender
+        private Panel[] _allDayCells; // Array to hold all pre-created day cells
+        private TextBox _activeNoteTextBox; // To store the currently active note TextBox
+        private ToolTip _noteToolTip; // ToolTip for displaying notes on hover
+
+        public event EventHandler DateSelected; // New event
+
+        public CustomCalendar()
+        {
+            _clubs = new List<Club>();
+            _dayPanels = new Dictionary<DateTime, Panel>(); // Initialize the dictionary
+            _userTasks = new List<UserTask>(); // Initialize the user tasks list
+            _dayNotes = new Dictionary<DateTime, List<string>>(); // Initialize the day notes dictionary
+            _noteToolTip = new ToolTip(); // Initialize the ToolTip
+            InitializeComponent();
+            SetupCalendarStructure(); // Call SetupCalendarStructure
+        }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public List<Club> Clubs
+        {
+            get { return _clubs; }
+            set
+            {
+                _clubs = value;
+                UpdateCalendarView();
+            }
+        }
+
+        public DateTime SelectedDate
+        {
+            get { return _selectedDate; }
+            private set
+            {
+                if (_selectedDate != value)
+                {
+                    // Unhighlight previously selected date
+                    if (_dayPanels.TryGetValue(_selectedDate.Date, out Panel prevSelectedPanel))
+                    {
+                        prevSelectedPanel.BackColor = Color.White;
+                        // Reapply today's highlight if the previously selected date was today
+                        if (_selectedDate.Date == DateTime.Today.Date)
+                        {
+                            prevSelectedPanel.BackColor = Color.LightYellow;
+                        }
+                        // Reset label color
+                        if (prevSelectedPanel.Controls.OfType<Label>().FirstOrDefault() is Label prevLabel)
+                        {
+                            prevLabel.ForeColor = Color.Black;
+                        }
+                    }
+
+                    _selectedDate = value;
+
+                    // Highlight newly selected date
+                    if (_dayPanels.TryGetValue(_selectedDate.Date, out Panel newSelectedPanel))
+                    {
+                        newSelectedPanel.BackColor = _clickColor; // Use click color
+                        if (newSelectedPanel.Controls.OfType<Label>().FirstOrDefault() is Label newLabel)
+                        {
+                            newLabel.ForeColor = Color.White;
+                        }
+                    }
+
+                    DateSelected?.Invoke(this, EventArgs.Empty);
+                    UpdateCalendarView(); // Re-render to highlight new selected date
+                }
+            }
+        }
+
+
+        private void InitializeComponent()
+        {
+            this.BackColor = Color.White;
+            this.Dock = DockStyle.Fill;
+
+            // Main TableLayoutPanel for overall layout
+            TableLayoutPanel mainLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 2,
+                // Row 0 for topPanel (auto-size), Row 1 for _calendarTable (fills remaining space)
+                RowStyles = { new RowStyle(SizeType.Absolute, 50), new RowStyle(SizeType.Percent, 100F) }
+            };
+            this.Controls.Add(mainLayout);
+
+            var topPanel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill, // Fill its cell in mainLayout
+                Height = 40, // This Height property might be overridden by AutoSize of mainLayout row
+                BackColor = ThemeColor.PrimaryColor, // Use theme color
+                ColumnCount = 3,
+                RowCount = 1,
+                ColumnStyles =
+                {
+                    new ColumnStyle(SizeType.Absolute, 40), // For btnPrev
+                    new ColumnStyle(SizeType.Percent, 100), // For _monthLabel
+                    new ColumnStyle(SizeType.Absolute, 40)  // For btnNext
+                }
+            };
+
+            var btnPrev = new Button
+            {
+                Text = "<",
+                Dock = DockStyle.Left,
+                Width = 40,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                ForeColor = Color.Black // Changed to Black
+            };
+            btnPrev.FlatAppearance.BorderSize = 0;
+            btnPrev.Click += (s, e) => { _currentDate = _currentDate.AddMonths(-1); UpdateCalendarView(); };
+
+            var btnNext = new Button
+            {
+                Text = ">",
+                Dock = DockStyle.Right,
+                Width = 40,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                ForeColor = Color.Black // Changed to Black
+            };
+            btnNext.FlatAppearance.BorderSize = 0;
+            btnNext.Click += (s, e) => { _currentDate = _currentDate.AddMonths(1); UpdateCalendarView(); };
+
+            _monthLabel = new Label
+            {
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                ForeColor = Color.White // Use white for contrast
+            };
+
+            topPanel.Controls.Add(btnPrev, 0, 0);
+            topPanel.Controls.Add(_monthLabel, 1, 0);
+            topPanel.Controls.Add(btnNext, 2, 0);
+
+            _calendarTable = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill, // Fill its cell in mainLayout
+                BackColor = Color.White,
+                ColumnCount = 7,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.Single // Re-add border
+            };
+            _calendarTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.28F));
+            _calendarTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.28F));
+            _calendarTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.28F));
+            _calendarTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.28F));
+            _calendarTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.28F));
+            _calendarTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.28F));
+            _calendarTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.28F));
+
+            mainLayout.Controls.Add(topPanel, 0, 0); // Add topPanel to row 0
+            mainLayout.Controls.Add(_calendarTable, 0, 1); // Add _calendarTable to row 1
+        }
+
+        private void AddNoteIndicator(Panel dayContainer)
+        {
+            // Check if an indicator already exists
+            if (dayContainer.Controls.OfType<PictureBox>().Any(pb => pb.Name == "NoteIndicator"))
+            {
+                return; // Indicator already present
+            }
+
+            PictureBox noteIndicator = new PictureBox
+            {
+                Name = "NoteIndicator",
+                Image = SystemIcons.Information.ToBitmap(), // Use a simple info icon
+                SizeMode = PictureBoxSizeMode.Zoom,
+                Size = new Size(16, 16),
+                Location = new Point(dayContainer.Width - 20, 5), // Position at top-right
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
+            };
+            dayContainer.Controls.Add(noteIndicator);
+            noteIndicator.BringToFront();
+        }
+
+        private void SetupCalendarStructure()
+        {
+            _calendarTable.Controls.Clear();
+            _calendarTable.RowStyles.Clear();
+
+            // Add day headers (Sun, Mon, Tue, etc.)
+            string[] dayNames = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+            for (int i = 0; i < 7; i++)
+            {
+                _calendarTable.Controls.Add(new Label
+                {
+                    Text = dayNames[i],
+                    Dock = DockStyle.Fill,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                    ForeColor = ThemeColor.PrimaryColor,
+                    Margin = new Padding(0)
+                }, i, 0);
+            }
+            _calendarTable.RowStyles.Add(new RowStyle(SizeType.Absolute, 25)); // Height for day headers
+
+            // Pre-create all 42 day cells (6 rows x 7 columns)
+            _allDayCells = new Panel[42];
+            for (int i = 0; i < 42; i++)
+            {
+                var dayContainer = new Panel
+                {
+                    Dock = DockStyle.Fill,
+                    Margin = new Padding(0),
+                    Cursor = Cursors.Hand,
+                    BackColor = Color.White // Default background
+                };
+
+                var dayLabel = new Label
+                {
+                    Dock = DockStyle.Top,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                    Height = 25,
+                    Margin = new Padding(0)
+                };
+                dayContainer.Controls.Add(dayLabel);
+
+                var eventCountLabel = new Label
+                {
+                    Dock = DockStyle.Bottom,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Font = new Font("Segoe UI", 8F),
+                    ForeColor = Color.DarkGray,
+                    Margin = new Padding(0)
+                };
+                dayContainer.Controls.Add(eventCountLabel);
+
+                // Hover effects
+                dayContainer.MouseEnter += (s, e) =>
+                {
+                    if (s is Panel p && p.Tag is DateTime tagDate && tagDate.Month == _currentDate.Month && tagDate.Day != 0 && tagDate != _selectedDate.Date)
+                    {
+                        p.BackColor = _hoverColor;
+                    }
+
+                    // Show notes in ToolTip on hover
+                    if (p.Tag is DateTime hoverDate && _dayNotes.TryGetValue(hoverDate.Date, out List<string> notes) && notes.Any())
+                    {
+                        _noteToolTip.Show(string.Join(Environment.NewLine, notes), p, p.Width / 2, p.Height / 2);
+                    }
+                };
+                dayContainer.MouseLeave += (s, e) =>
+                {
+                    if (s is Panel p && p.Tag is DateTime tagDate && tagDate.Month == _currentDate.Month && tagDate.Day != 0 && tagDate != _selectedDate.Date)
+                    {
+                        p.BackColor = Color.White; // Revert to default
+                        if (tagDate == DateTime.Today.Date)
+                        {
+                            p.BackColor = Color.LightYellow; // Reapply today's highlight
+                        }
+                    }
+                    _noteToolTip.Hide(p);
+                };
+
+                dayContainer.Click += (s, e) =>
+                {
+                    if (s is Panel p && p.Tag is DateTime clickedDate && clickedDate.Day != 0)
+                    {
+                        // Set SelectedDate (this will handle highlighting)
+                        SelectedDate = clickedDate;
+
+                        // If there's an active TextBox from a previous click, save its content and hide it
+                        if (_activeNoteTextBox != null && _activeNoteTextBox.Parent != p)
+                        {
+                            SaveNoteAndHideTextBox(_activeNoteTextBox);
+                        }
+
+                        // Find or create the TextBox for this day
+                        TextBox noteTextBox = p.Controls.OfType<TextBox>().FirstOrDefault();
+                        if (noteTextBox == null)
+                        {
+                            noteTextBox = new TextBox
+                            {
+                                Multiline = true,
+                                Dock = DockStyle.Fill,
+                                BorderStyle = BorderStyle.FixedSingle,
+                                Visible = false, // Start hidden
+                                Tag = clickedDate // Store date for saving
+                            };
+                            noteTextBox.LostFocus += NoteTextBox_LostFocus;
+                            noteTextBox.KeyDown += NoteTextBox_KeyDown;
+                            p.Controls.Add(noteTextBox);
+                            noteTextBox.BringToFront();
+                        }
+
+                        // Populate with existing notes
+                        if (_dayNotes.TryGetValue(clickedDate.Date, out List<string> notes))
+                        {
+                            noteTextBox.Text = string.Join(Environment.NewLine, notes);
+                        }
+                        else
+                        {
+                            noteTextBox.Text = string.Empty;
+                        }
+
+                        noteTextBox.Visible = true;
+                        noteTextBox.Focus();
+                        _activeNoteTextBox = noteTextBox;
+                    }
+                };
+
+                _allDayCells[i] = dayContainer;
+                _calendarTable.Controls.Add(dayContainer, i % 7, i / 7 + 1); // +1 for day header row
+            }
+
+            // Add row styles for the 6 rows of day cells
+            for (int i = 0; i < 6; i++)
+            {
+                _calendarTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100F / 6));
+            }
+
+            UpdateCalendarView(); // Initial call to populate day cells
+        }
+
+        private void SaveNoteAndHideTextBox(TextBox textBox)
+        {
+            if (textBox != null && textBox.Tag is DateTime date)
+            {
+                string noteContent = textBox.Text.Trim();
+                if (!string.IsNullOrWhiteSpace(noteContent))
+                {
+                    // Split notes by new line for multiple notes
+                    List<string> notes = noteContent.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    _dayNotes[date.Date] = notes;
+                    AddNoteIndicator((Panel)textBox.Parent); // Update indicator
+                }
+                else
+                {
+                    _dayNotes.Remove(date.Date);
+                    RemoveNoteIndicator((Panel)textBox.Parent); // Remove indicator
+                }
+                textBox.Visible = false;
+                _activeNoteTextBox = null;
+            }
+        }
+
+        private void NoteTextBox_LostFocus(object sender, EventArgs e)
+        {
+            SaveNoteAndHideTextBox(sender as TextBox);
+        }
+
+        private void NoteTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && !e.Shift)
+            {
+                SaveNoteAndHideTextBox(sender as TextBox);
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
+
+        private void RemoveNoteIndicator(Panel dayContainer)
+        {
+            var noteIndicator = dayContainer.Controls.OfType<PictureBox>().FirstOrDefault(pb => pb.Name == "NoteIndicator");
+            if (noteIndicator != null)
+            {
+                dayContainer.Controls.Remove(noteIndicator);
+                noteIndicator.Dispose();
+            }
+        }
+
+        private void AddNoteIndicator(Panel dayContainer)
+        {
+            // Check if an indicator already exists
+            if (dayContainer.Controls.OfType<PictureBox>().Any(pb => pb.Name == "NoteIndicator"))
+            {
+                return; // Indicator already present
+            }
+
+            PictureBox noteIndicator = new PictureBox
+            {
+                Name = "NoteIndicator",
+                Image = SystemIcons.Information.ToBitmap(), // Use a simple info icon
+                SizeMode = PictureBoxSizeMode.Zoom,
+                Size = new Size(16, 16),
+                Location = new Point(dayContainer.Width - 20, 5), // Position at top-right
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
+            };
+            dayContainer.Controls.Add(noteIndicator);
+            noteIndicator.BringToFront();
+        }
+
+        private void UpdateCalendarView()
+        {
+            _dayPanels.Clear(); // Clear the dictionary
+            _monthLabel.Text = _currentDate.ToString("MMMM yyyy");
+
+            var daysInMonth = DateTime.DaysInMonth(_currentDate.Year, _currentDate.Month);
+            var firstDayOfMonth = new DateTime(_currentDate.Year, _currentDate.Month, 1);
+            var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+
+            int dayCounter = 1;
+            int currentDayOfMonth = 1;
+
+            for (int i = 0; i < 42; i++)
+            {
+                Panel dayContainer = _allDayCells[i];
+                Label dayLabel = dayContainer.Controls.OfType<Label>().FirstOrDefault();
+                Label eventCountLabel = dayContainer.Controls.OfType<Label>().LastOrDefault(); // Assuming eventCountLabel is the last label
+                PictureBox noteIndicator = dayContainer.Controls.OfType<PictureBox>().FirstOrDefault(pb => pb.Name == "NoteIndicator");
+
+                if (dayLabel == null || eventCountLabel == null) continue; // Should not happen with pre-created controls
+
+                dayContainer.Tag = null; // Clear tag initially
+                dayContainer.BackColor = Color.White; // Default background
+                dayLabel.ForeColor = Color.Black; // Default text color
+                dayLabel.Text = "";
+                eventCountLabel.Text = "";
+                if (noteIndicator != null) noteIndicator.Visible = false;
+
+                if (i >= startDayOfWeek && currentDayOfMonth <= daysInMonth)
+                {
+                    DateTime date = new DateTime(_currentDate.Year, _currentDate.Month, currentDayOfMonth);
+                    dayContainer.Tag = date; // Set tag for click event
+                    dayLabel.Text = currentDayOfMonth.ToString();
+
+                    // Highlight selected date
+                    if (date.Date == _selectedDate.Date)
+                    {
+                        dayContainer.BackColor = _clickColor; // Use click color
+                        dayLabel.ForeColor = Color.White;
+                    }
+                    else if (date.Date == DateTime.Today.Date)
+                    {
+                        dayContainer.BackColor = Color.LightYellow; // Highlight today
+                        dayLabel.ForeColor = Color.Black; // Ensure label is black for today
+                    }
+
+                    // Display event count
+                    var eventsOnDay = _clubs.Where(c => c.NextEventDate.Date == date.Date).ToList();
+                    if (eventsOnDay.Any())
+                    {
+                        eventCountLabel.Text = $"{eventsOnDay.Count} events";
+                    }
+
+                    // Add note indicator if a note exists for this date
+                    if (_dayNotes.ContainsKey(date.Date) && _dayNotes[date.Date].Any(n => !string.IsNullOrWhiteSpace(n)))
+                    {
+                        if (noteIndicator == null)
+                        {
+                            AddNoteIndicator(dayContainer); // Add if not already present
+                        }
+                        else
+                        {
+                            noteIndicator.Visible = true;
+                        }
+                    }
+                    else
+                    {
+                        if (noteIndicator != null) noteIndicator.Visible = false; // Hide if no notes
+                    }
+
+                    _dayPanels[date.Date] = dayContainer; // Add to dictionary
+                    currentDayOfMonth++;
+                }
+                else
+                {
+                    // Empty cell (outside current month)
+                    dayContainer.Tag = new DateTime(); // Indicate empty cell
+                }
+            }
+        }
+    }
+}
+
+

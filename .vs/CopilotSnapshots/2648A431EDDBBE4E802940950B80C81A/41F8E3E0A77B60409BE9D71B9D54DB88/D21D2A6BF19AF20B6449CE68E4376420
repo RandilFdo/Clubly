@@ -1,0 +1,378 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
+
+namespace ClubManager
+{
+    public class CustomCalendar : UserControl
+    {
+        private FlowLayoutPanel _dayPanel;
+        private TableLayoutPanel _calendarTable;
+        private Label _monthLabel;
+        private DateTime _currentDate = DateTime.Today;
+        private DateTime _selectedDate = DateTime.Today; // New field for selected date
+        private List<Club> _clubs;
+        private Panel _mainContainerPanel; // New main container panel
+
+        public event EventHandler DateSelected; // New event
+
+        public CustomCalendar()
+        {
+            _clubs = new List<Club>();
+            InitializeComponent();
+            RenderCalendar();
+        }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public List<Club> Clubs
+        {
+            get { return _clubs; }
+            set
+            {
+                _clubs = value;
+                RenderCalendar();
+            }
+        }
+
+        public DateTime SelectedDate
+        {
+            get { return _selectedDate; }
+            private set
+            {
+                if (_selectedDate != value)
+                {
+                    _selectedDate = value;
+                    DateSelected?.Invoke(this, EventArgs.Empty);
+                    RenderCalendar(); // Re-render to highlight new selected date
+                }
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            Graphics g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+            // Define colors for the gradient (matching screenshot)
+            Color startColor = Color.FromArgb(255, 230, 240, 255); // Light blue/purple
+            Color endColor = Color.FromArgb(255, 200, 255, 240);   // Light green/blue
+
+            // Create a linear gradient brush
+            System.Drawing.Drawing2D.LinearGradientBrush brush = new System.Drawing.Drawing2D.LinearGradientBrush(
+                this.ClientRectangle,
+                startColor,
+                endColor,
+                System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal);
+
+            // Draw the rounded rectangle with the gradient
+            int borderRadius = 20; // Adjust as needed for desired roundness
+            System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+            path.AddArc(0, 0, borderRadius * 2, borderRadius * 2, 180, 90);
+            path.AddArc(this.Width - borderRadius * 2, 0, borderRadius * 2, borderRadius * 2, 270, 90);
+            path.AddArc(this.Width - borderRadius * 2, this.Height - borderRadius * 2, borderRadius * 2, borderRadius * 2, 0, 90);
+            path.AddArc(0, this.Height - borderRadius * 2, borderRadius * 2, borderRadius * 2, 90, 90);
+            path.CloseAllFigures();
+
+            g.FillPath(brush, path);
+
+            // Draw a border around the rounded rectangle
+            using (Pen borderPen = new Pen(Color.Black, 2)) // Black border, 2 pixels thick
+            {
+                g.DrawPath(borderPen, path);
+            }
+
+            brush.Dispose();
+        }
+
+        private void InitializeComponent()
+        {
+            this.BackColor = Color.Transparent;
+            this.Dock = DockStyle.Fill;
+
+            _mainContainerPanel = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
+
+            TableLayoutPanel topPanel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Top,
+                Height = 60,
+                BackColor = Color.Transparent, // Will be covered by custom drawing
+                ColumnCount = 5,
+                RowCount = 1
+            };
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F)); // For 'CALENDAR' and icon
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F)); // For month label
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F)); // For month/week buttons
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F)); // For prev button
+            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F)); // For next button
+
+            // 'CALENDAR' title and icon
+            var titlePanel = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
+            var titleLabel = new Label
+            {
+                Text = "CALENDAR",
+                Font = new Font("Press Start 2P", 14F, FontStyle.Bold), // Placeholder font
+                ForeColor = Color.Black,
+                AutoSize = true,
+                Location = new Point(0, 15) // Adjust as needed
+            };
+            var calendarIcon = new PictureBox
+            {
+                Image = Properties.Resources.mascot, // Assuming mascot.png is the calendar icon
+                SizeMode = PictureBoxSizeMode.Zoom,
+                Width = 30,
+                Height = 30,
+                Location = new Point(titleLabel.Width + 5, 15) // Adjust as needed
+            };
+            titlePanel.Controls.Add(titleLabel);
+            titlePanel.Controls.Add(calendarIcon);
+            topPanel.Controls.Add(titlePanel, 0, 0);
+
+            _monthLabel = new Label
+            {
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Press Start 2P", 12F, FontStyle.Bold), // Placeholder font
+                ForeColor = Color.Black
+            };
+            topPanel.Controls.Add(_monthLabel, 1, 0);
+
+            // Month/Week buttons
+            var viewTogglePanel = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
+            var btnMonth = new Button
+            {
+                Text = "MONTH",
+                Width = 70,
+                Height = 30,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(50, 205, 50), // Green color from screenshot
+                ForeColor = Color.White,
+                Font = new Font("Press Start 2P", 8F, FontStyle.Bold), // Placeholder font
+                Location = new Point(0, 15) // Adjust as needed
+            };
+            btnMonth.FlatAppearance.BorderSize = 0;
+            var btnWeek = new Button
+            {
+                Text = "WEEK",
+                Width = 70,
+                Height = 30,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.LightGray,
+                ForeColor = Color.Black,
+                Font = new Font("Press Start 2P", 8F, FontStyle.Bold), // Placeholder font
+                Location = new Point(btnMonth.Width + 5, 15) // Adjust as needed
+            };
+            btnWeek.FlatAppearance.BorderSize = 0;
+            viewTogglePanel.Controls.Add(btnMonth);
+            viewTogglePanel.Controls.Add(btnWeek);
+            topPanel.Controls.Add(viewTogglePanel, 2, 0);
+
+            var btnPrev = new Button
+            {
+                Text = "<",
+                Dock = DockStyle.Fill,
+                FlatStyle = FlatStyle.Flat,
+                FlatAppearance.BorderSize = 0,
+                Font = new Font("Press Start 2P", 12F, FontStyle.Bold), // Placeholder font
+                ForeColor = Color.Black,
+                BackColor = Color.Transparent
+            };
+            btnPrev.Click += (s, e) => { _currentDate = _currentDate.AddMonths(-1); RenderCalendar(); };
+            topPanel.Controls.Add(btnPrev, 3, 0);
+
+            var btnNext = new Button
+            {
+                Text = ">",
+                Dock = DockStyle.Fill,
+                FlatStyle = FlatStyle.Flat,
+                FlatAppearance.BorderSize = 0,
+                Font = new Font("Press Start 2P", 12F, FontStyle.Bold), // Placeholder font
+                ForeColor = Color.Black,
+                BackColor = Color.Transparent
+            };
+            btnNext.Click += (s, e) => { _currentDate = _currentDate.AddMonths(1); RenderCalendar(); };
+            topPanel.Controls.Add(btnNext, 4, 0);
+
+            _calendarTable = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.Transparent,
+                ColumnCount = 7
+            };
+            for (int i = 0; i < 7; i++)
+            {
+                _calendarTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F / 7));
+            }
+
+            // Legend Panel
+            var legendPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 30,
+                BackColor = Color.Transparent,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                Padding = new Padding(5)
+            };
+
+            legendPanel.Controls.Add(CreateLegendItem(Color.Red, "High Priority"));
+            legendPanel.Controls.Add(CreateLegendItem(Color.Orange, "Medium Priority"));
+            legendPanel.Controls.Add(CreateLegendItem(Color.LightGreen, "Low Priority"));
+            legendPanel.Controls.Add(CreateLegendItem(Color.Red, "Exams")); // Assuming Exams is also red for now
+
+            _mainContainerPanel.Controls.Add(topPanel);
+            _mainContainerPanel.Controls.Add(_calendarTable);
+            _mainContainerPanel.Controls.Add(legendPanel);
+
+            this.Controls.Add(_mainContainerPanel);
+        }
+
+        private Panel CreateLegendItem(Color color, string text)
+        {
+            var panel = new Panel { AutoSize = true, BackColor = Color.Transparent };
+            var colorBox = new Panel
+            {
+                BackColor = color,
+                Size = new Size(15, 15),
+                Margin = new Padding(0, 3, 5, 0) // Adjust margin for alignment
+            };
+            var label = new Label
+            {
+                Text = text,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 8F),
+                ForeColor = Color.Black,
+                Margin = new Padding(0, 0, 10, 0) // Adjust margin for spacing
+            };
+
+            panel.Controls.Add(colorBox);
+            panel.Controls.Add(label);
+            label.Location = new Point(colorBox.Width + 2, 0);
+            return panel;
+        }
+
+        private void RenderCalendar()
+        {
+            _calendarTable.Controls.Clear();
+            _calendarTable.RowStyles.Clear();
+            _monthLabel.Text = _currentDate.ToString("MMMM yyyy");
+
+            string[] dayNames = { "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT" }; // Uppercase day names
+            for (int i = 0; i < 7; i++)
+            {
+                var dayHeaderPanel = new Panel
+                {
+                    Dock = DockStyle.Fill,
+                    BackColor = Color.Transparent,
+                    Margin = new Padding(0),
+                    BorderStyle = BorderStyle.FixedSingle // Add border
+                };
+                dayHeaderPanel.Controls.Add(new Label
+                {
+                    Text = dayNames[i],
+                    Dock = DockStyle.Fill,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Font = new Font("Press Start 2P", 9F, FontStyle.Bold), // Pixel-art font
+                    ForeColor = Color.Black,
+                    Margin = new Padding(0)
+                });
+                _calendarTable.Controls.Add(dayHeaderPanel, i, 0);
+            }
+            _calendarTable.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Increased height for day headers
+
+            var daysInMonth = DateTime.DaysInMonth(_currentDate.Year, _currentDate.Month);
+            var firstDayOfMonth = new DateTime(_currentDate.Year, _currentDate.Month, 1);
+            var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+
+            int dayCounter = 1;
+            int row = 1;
+
+            // Add empty cells for the days before the 1st of the month
+            for (int i = 0; i < startDayOfWeek; i++)
+            {
+                _calendarTable.Controls.Add(new Panel { Dock = DockStyle.Fill, Margin = new Padding(0), BorderStyle = BorderStyle.FixedSingle }, i, row);
+            }
+
+            // Add day cells
+            for (int day = 1; day <= daysInMonth; day++)
+            {
+                var date = new DateTime(_currentDate.Year, _currentDate.Month, day);
+                var dayContainer = new Panel // Use a panel to hold day number and event count
+                {
+                    Dock = DockStyle.Fill,
+                    Margin = new Padding(0),
+                    Cursor = Cursors.Hand,
+                    Tag = date,
+                    BorderStyle = BorderStyle.FixedSingle // Add border to day cell
+                };
+                dayContainer.Click += (s, e) => SelectedDate = (DateTime)((Panel)s).Tag; // Set SelectedDate on click
+
+                var dayLabel = new Label
+                {
+                    Text = day.ToString(),
+                    Dock = DockStyle.Top,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Font = new Font("Press Start 2P", 10F, FontStyle.Bold), // Pixel-art font
+                    Height = 25,
+                    Margin = new Padding(0),
+                    ForeColor = Color.Black // Set fore color to black
+                };
+                dayContainer.Controls.Add(dayLabel);
+
+                // Highlight selected date
+                if (date.Date == _selectedDate.Date || date.Date == DateTime.Today.Date)
+                {
+                    dayContainer.BackColor = Color.FromArgb(50, 205, 50); // Bright green for selected date
+                    dayLabel.ForeColor = Color.White;
+                }
+                else
+                {
+                    dayContainer.BackColor = Color.White; // Default background for other days
+                }
+
+                // Display event count
+                var eventsOnDay = _clubs.Where(c => c.NextEventDate.Date == date.Date).ToList();
+                if (eventsOnDay.Any())
+                {
+                    var eventCountLabel = new Label
+                    {
+                        Text = $"{eventsOnDay.Count} events",
+                        Dock = DockStyle.Bottom,
+                        TextAlign = ContentAlignment.MiddleCenter,
+                        Font = new Font("Press Start 2P", 8F, FontStyle.Regular), // Pixel-art font
+                        ForeColor = Color.DimGray, // Darker gray
+                        Margin = new Padding(0)
+                    };
+                    dayContainer.Controls.Add(eventCountLabel);
+                }
+
+                _calendarTable.Controls.Add(dayContainer, (day - 1 + startDayOfWeek) % 7, row);
+
+                if ((day + startDayOfWeek - 1) % 7 == 6)
+                {
+                    _calendarTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+                    row++;
+                }
+                dayCounter++;
+            }
+
+            // Add remaining empty cells for the last row
+            while ((dayCounter - 1 + startDayOfWeek) % 7 != 0)
+            {
+                _calendarTable.Controls.Add(new Panel { Dock = DockStyle.Fill, Margin = new Padding(0), BorderStyle = BorderStyle.FixedSingle }, (dayCounter - 1 + startDayOfWeek) % 7, row);
+                dayCounter++;
+            }
+
+            // Ensure all rows have a style, especially if the last row is incomplete
+            if (_calendarTable.RowStyles.Count < row + 1)
+            {
+                _calendarTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100F / row));
+            }
+        }
+    }
+}
+
+

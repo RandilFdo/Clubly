@@ -1,0 +1,151 @@
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
+using Guna.UI2.WinForms;
+
+namespace ClubManager
+{
+    public partial class AddTaskForm : Form
+    {
+        public UserTask TaskToEdit { get; private set; }
+        public UserTask NewTask { get; private set; }
+        private Color primaryColor;
+        private Guna2TextBox txtDescription;
+        private Guna2ComboBox cmbClub;
+        private Guna2DateTimePicker dtpDueDate;
+        private Guna2ComboBox cmbPriority;
+        private Guna2Button btnSave;
+        private Guna2Panel titleBar;
+
+        public AddTaskForm(Color primaryColor, System.Collections.Generic.List<Club> clubs, UserTask taskToEdit = null)
+        {
+            this.primaryColor = primaryColor;
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.ClientSize = new System.Drawing.Size(500, 600);
+            this.Text = "Add Task";
+
+            this.txtDescription = new Guna.UI2.WinForms.Guna2TextBox();
+            this.cmbClub = new Guna.UI2.WinForms.Guna2ComboBox();
+            this.dtpDueDate = new Guna.UI2.WinForms.Guna2DateTimePicker();
+            this.cmbPriority = new Guna.UI2.WinForms.Guna2ComboBox();
+            this.btnSave = new Guna.UI2.WinForms.Guna2Button();
+            this.titleBar = new Guna.UI2.WinForms.Guna2Panel();
+
+            Guna.UI2.WinForms.Guna2Panel mainPanel = new Guna.UI2.WinForms.Guna2Panel { Dock = DockStyle.Fill, FillColor = Color.White, Padding = new Padding(30) };
+            this.titleBar.Dock = DockStyle.Top;
+            this.titleBar.Height = 50;
+            this.titleBar.FillColor = primaryColor;
+            Label titleLabel = new Label { Text = "ADD NEW TASK", ForeColor = Color.White, Font = new Font("Segoe UI", 16F, FontStyle.Bold), Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter };
+            Guna.UI2.WinForms.Guna2ControlBox closeButton = new Guna.UI2.WinForms.Guna2ControlBox { Anchor = AnchorStyles.Top | AnchorStyles.Right, IconColor = Color.White, Dock = DockStyle.Right, Size = new System.Drawing.Size(50, 50) };
+
+            Guna.UI2.WinForms.Guna2DragControl dragControl = new Guna.UI2.WinForms.Guna2DragControl { TargetControl = titleBar };
+
+            this.txtDescription.PlaceholderText = "Enter task description...";
+            this.txtDescription.Font = new Font("Segoe UI", 10F);
+            this.txtDescription.BorderRadius = 15;
+            this.txtDescription.Height = 100;
+            this.txtDescription.Multiline = true;
+
+            this.cmbClub.DropDownStyle = ComboBoxStyle.DropDownList;
+            this.cmbClub.Font = new Font("Segoe UI", 10F);
+            this.cmbClub.BorderRadius = 15;
+            this.cmbClub.Height = 40;
+
+            this.dtpDueDate.Font = new Font("Segoe UI", 10F);
+            this.dtpDueDate.BorderRadius = 15;
+            this.dtpDueDate.Height = 40;
+
+            this.cmbPriority.DropDownStyle = ComboBoxStyle.DropDownList;
+            this.cmbPriority.Font = new Font("Segoe UI", 10F);
+            this.cmbPriority.BorderRadius = 15;
+            this.cmbPriority.Height = 40;
+
+            this.btnSave.Text = "SAVE TASK";
+            this.btnSave.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            this.btnSave.ForeColor = Color.White;
+            this.btnSave.FillColor = primaryColor;
+            this.btnSave.BorderRadius = 15;
+            this.btnSave.Height = 50;
+
+            TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 9, Padding = new Padding(10) };
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Label
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 110)); // TextBox
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Label
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // ComboBox
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Label
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // DateTimePicker
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Label
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // ComboBox
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Button
+
+            layout.Controls.Add(new Label { Text = "Description", Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.DimGray, Dock = DockStyle.Bottom }, 0, 0);
+            layout.Controls.Add(this.txtDescription, 0, 1);
+            layout.Controls.Add(new Label { Text = "Club", Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.DimGray, Dock = DockStyle.Bottom }, 0, 2);
+            layout.Controls.Add(this.cmbClub, 0, 3);
+            layout.Controls.Add(new Label { Text = "Due Date", Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.DimGray, Dock = DockStyle.Bottom }, 0, 4);
+            layout.Controls.Add(this.dtpDueDate, 0, 5);
+            layout.Controls.Add(new Label { Text = "Priority", Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.DimGray, Dock = DockStyle.Bottom }, 0, 6);
+            layout.Controls.Add(this.cmbPriority, 0, 7);
+            layout.Controls.Add(this.btnSave, 0, 8);
+
+            this.titleBar.Controls.Add(titleLabel);
+            this.titleBar.Controls.Add(closeButton);
+            mainPanel.Controls.Add(layout);
+            this.Controls.Add(mainPanel);
+            this.Controls.Add(this.titleBar);
+
+            this.cmbClub.DataSource = clubs;
+            this.cmbClub.DisplayMember = "Name";
+            this.cmbClub.ValueMember = "ClubId";
+
+            this.cmbPriority.Items.AddRange(new string[] { "Low", "Medium", "High" });
+
+            TaskToEdit = taskToEdit;
+
+            if (TaskToEdit != null)
+            {
+                this.Text = "Edit Task";
+                txtDescription.Text = TaskToEdit.Description;
+                dtpDueDate.Value = TaskToEdit.DueDate;
+                cmbPriority.SelectedItem = TaskToEdit.Priority;
+                cmbClub.SelectedValue = TaskToEdit.ClubId;
+            }
+            else
+            {
+                this.Text = "Add Task";
+                this.cmbPriority.SelectedIndex = 0;
+            }
+
+            this.btnSave.Click += (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(this.txtDescription.Text) || this.cmbClub.SelectedItem == null)
+                {
+                    MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (TaskToEdit != null)
+                {
+                    TaskToEdit.Description = txtDescription.Text;
+                    TaskToEdit.DueDate = dtpDueDate.Value;
+                    TaskToEdit.Priority = cmbPriority.SelectedItem.ToString();
+                    TaskToEdit.ClubId = ((Club)this.cmbClub.SelectedItem).ClubId;
+                    NewTask = TaskToEdit;
+                }
+                else
+                {
+                    NewTask = new UserTask(
+                        this.txtDescription.Text,
+                        this.dtpDueDate.Value,
+                        this.cmbPriority.SelectedItem.ToString(),
+                        ((Club)this.cmbClub.SelectedItem).ClubId
+                    );
+                }
+
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            };
+        }
+    }
+}

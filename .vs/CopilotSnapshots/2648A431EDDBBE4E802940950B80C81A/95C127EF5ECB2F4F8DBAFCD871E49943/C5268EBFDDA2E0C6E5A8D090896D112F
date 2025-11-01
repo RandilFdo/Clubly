@@ -1,0 +1,82 @@
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
+using Guna.UI2.WinForms;
+
+namespace ClubManager
+{
+    public partial class AddTaskForm : Form
+    {
+        public UserTask NewTask { get; private set; }
+        private Color primaryColor;
+
+        public AddTaskForm(Color primaryColor, System.Collections.Generic.List<Club> clubs)
+        {
+            InitializeComponent();
+            this.primaryColor = primaryColor;
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.FormBorderStyle = FormBorderStyle.None;
+
+            // --- UI Initialization ---
+            Guna2Panel mainPanel = new Guna2Panel { Dock = DockStyle.Fill, FillColor = Color.White, Padding = new Padding(20) };
+            Guna2Panel titleBar = new Guna2Panel { Dock = DockStyle.Top, Height = 30, FillColor = primaryColor };
+            Label titleLabel = new Label { Text = "Add New Task", ForeColor = Color.White, Font = new Font("Segoe UI", 12F, FontStyle.Bold), Dock = DockStyle.Left };
+            Guna2ControlBox closeButton = new Guna2ControlBox { Anchor = AnchorStyles.Top | AnchorStyles.Right, FillColor = primaryColor, IconColor = Color.White, Dock = DockStyle.Right };
+
+            Guna2TextBox txtDescription = new Guna2TextBox { PlaceholderText = "Task Description", Font = new Font("Segoe UI", 10F), BorderRadius = 15, Margin = new Padding(0, 0, 0, 10) };
+            Guna2ComboBox cmbClub = new Guna2ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10F), BorderRadius = 15, Margin = new Padding(0, 0, 0, 10) };
+            Guna2DateTimePicker dtpDueDate = new Guna2DateTimePicker { Font = new Font("Segoe UI", 10F), BorderRadius = 15, Margin = new Padding(0, 0, 0, 10) };
+            Guna2ComboBox cmbPriority = new Guna2ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10F), BorderRadius = 15, Margin = new Padding(0, 0, 0, 10) };
+            Guna2Button btnSave = new Guna2Button { Text = "Save Task", Font = new Font("Segoe UI", 10F, FontStyle.Bold), FillColor = primaryColor, ForeColor = Color.White, BorderRadius = 15, Height = 40 };
+
+            // --- Populate ComboBoxes ---
+            cmbClub.DataSource = clubs;
+            cmbClub.DisplayMember = "Name";
+            cmbClub.ValueMember = "ClubId";
+            cmbPriority.Items.AddRange(new string[] { "Low", "Medium", "High" });
+            cmbPriority.SelectedIndex = 0;
+
+            // --- Layout ---
+            TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5 };
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+            layout.Controls.Add(txtDescription, 0, 0);
+            layout.Controls.Add(cmbClub, 0, 1);
+            layout.Controls.Add(dtpDueDate, 0, 2);
+            layout.Controls.Add(cmbPriority, 0, 3);
+            layout.Controls.Add(btnSave, 0, 4);
+
+            titleBar.Controls.Add(titleLabel);
+            titleBar.Controls.Add(closeButton);
+            mainPanel.Controls.Add(layout);
+            this.Controls.Add(mainPanel);
+            this.Controls.Add(titleBar);
+
+            // --- Event Handlers ---
+            btnSave.Click += (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(txtDescription.Text) || cmbClub.SelectedItem == null)
+                {
+                    MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                NewTask = new UserTask
+                {
+                    Description = txtDescription.Text,
+                    ClubId = ((Club)cmbClub.SelectedItem).Id,
+                    DueDate = dtpDueDate.Value,
+                    Priority = cmbPriority.SelectedItem.ToString(),
+                    IsCompleted = false
+                };
+
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            };
+        }
+    }
+}
