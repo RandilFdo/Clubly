@@ -99,15 +99,18 @@ The application uses **Entity Framework Core** with SQL Server LocalDB. Follow t
 
 ### Home Page
 
-![Home Page](https://via.placeholder.com/800x400?text=Home+Page+Screenshot)
+<img width="2004" height="1359" alt="Screenshot 2025-10-29 090411" src="https://github.com/user-attachments/assets/b610529f-9215-4629-839a-eb2bcb126460" />
+
 
 ### Task Management
 
-![Task Management](https://via.placeholder.com/800x400?text=Task+Management+Screenshot)
+<img width="2004" height="1359" alt="Screenshot 2025-10-29 090711" src="https://github.com/user-attachments/assets/f51fdf65-5b78-4a7a-bec2-5d5ebc3a9705" />
+
 
 ### Calendar
 
-![Calendar](https://via.placeholder.com/800x400?text=Calendar+Screenshot)
+<img width="2004" height="1359" alt="Screenshot 2025-10-29 090819" src="https://github.com/user-attachments/assets/fa714fc3-aedc-409b-8d72-45b9557c6697" />
+
 
 ---
 
@@ -146,18 +149,4 @@ Contributions are welcome! To contribute:
 
 5. Open a pull request.
 
----
 
-## License
-
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
-
----
-
-## Contact
-
-For any inquiries or support, feel free to reach out:
-
-- **Author**: Randil Fernando
-- **GitHub**: [RandilFdo](https://github.com/RandilFdo)
-- **Email**: randil@example.com
